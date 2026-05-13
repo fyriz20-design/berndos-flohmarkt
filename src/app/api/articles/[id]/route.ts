@@ -13,7 +13,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const product = await prisma.product.create({ 
+    const product = await (prisma as any).product.create({
       data: {
         name: body.name,
         description: body.description,
