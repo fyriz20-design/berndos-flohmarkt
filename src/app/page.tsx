@@ -1,60 +1,56 @@
 import { prisma } from '@/lib/prisma';
 import ProductList from './ProductList';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  // Wir erstellen eine leere Liste als Sicherheit
   let products: any[] = [];
-  let dbError = false;
+  let debugInfo = "";
 
   try {
-    // Der Versuch, die Datenbank zu erreichen
-    const data = await (prisma as any).article.findMany({ take: 20 }).catch(() => 
-                 (prisma as any).product.findMany({ take: 20 }));
+    // 1. Verbindungstest
+    await (prisma as any).$connect();
     
-    if (data) {
-      products = data;
-    }
-  } catch (error) {
-    // Falls die Datenbank knallt, fangen wir das hier ab
-    console.error("Datenbank-Verbindung fehlgeschlagen");
-    dbError = true;
+    // 2. Daten laden (wir probieren beide Tabellennamen)
+    const data = await (prisma as any).article?.findMany() || 
+                 await (prisma as any).product?.findMany();
+    
+    products = data || [];
+  } catch (error: any) {
+    console.error("DB-Error:", error);
+    debugInfo = error.message || "Keine Verbindung zur Datenbank möglich.";
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      <nav className="bg-white shadow-sm p-4 flex justify-between items-center px-8 border-b">
-        <h1 className="text-2xl font-bold text-blue-700">Berndos Flohmarkt</h1>
-        <div className="space-x-4">
-          <a href="/cart" className="text-gray-600 hover:text-blue-600">Warenkorb</a>
-          <a href="/admin" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Admin</a>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <nav className="bg-white shadow-sm p-4 border-b">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
+          <h1 className="text-2xl font-bold text-blue-600">Berndos Flohmarkt</h1>
+          <div className="flex gap-4">
+            <Link href="/admin" className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200">Admin</Link>
+          </div>
         </div>
       </nav>
 
-      <header className="py-12 px-4 text-center bg-white border-b">
-        <h2 className="text-4xl font-extrabold text-gray-800">Stöbern, Finden, Freuen!</h2>
-        <p className="text-lg text-gray-500 mt-2">Entdecke tolle Schätze auf unserem Online-Flohmarkt.</p>
-      </header>
-
-      <main className="max-w-7xl mx-auto py-10 px-4">
+      <main className="flex-grow max-w-7xl mx-auto w-full py-12 px-4">
         {products.length > 0 ? (
           <ProductList initialArticles={products} />
         ) : (
-          <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-600">
-              {dbError ? "Verbindung wird aufgebaut..." : "Aktuell keine Artikel verfügbar"}
-            </h3>
-            <p className="text-gray-400 mt-2">
-              {dbError ? "Bitte lade die Seite in einem Moment neu." : "Schau später noch einmal vorbei!"}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border text-center">
+            <h2 className="text-xl font-semibold text-gray-800">
+              {debugInfo ? "Wartungsarbeiten" : "Willkommen!"}
+            </h2>
+            <p className="text-gray-500 mt-2">
+              {debugInfo 
+                ? "Wir optimieren gerade die Datenbankverbindung. Bitte in einer Minute nochmal probieren." 
+                : "Aktuell sind keine Schätze online. Schau bald wieder vorbei!"}
             </p>
-            {/* Ein Refresh-Button hilft dem Nutzer */}
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-6 text-blue-600 underline text-sm"
-            >
-              Seite aktualisieren
-            </button>
+            {debugInfo && (
+              <div className="mt-6 p-3 bg-red-50 text-red-600 text-xs rounded border border-red-100">
+                Diagnose: {debugInfo.substring(0, 100)}...
+              </div>
+            )}
           </div>
         )}
       </main>
