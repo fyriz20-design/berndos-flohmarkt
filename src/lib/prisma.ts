@@ -1,14 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 import { withAccelerate } from '@prisma/extension-accelerate'
 
+// Verhindert, dass in Entwicklungsumgebungen zu viele Verbindungen aufgebaut werden
 const prismaClientSingleton = () => {
   return new PrismaClient().$extends(withAccelerate())
 }
 
-type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
-
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined
+  prisma: ReturnType<typeof prismaClientSingleton> | undefined
 }
 
 export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
