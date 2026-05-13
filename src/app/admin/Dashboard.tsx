@@ -9,7 +9,7 @@ export default async function AdminPage() {
 
   if (isAdmin) {
     let orders: any[] = []
-    let stats = { totalRevenue: 0 }
+    let stats: any = { totalRevenue: 0 }
 
     try {
       // Sicherer Datenabruf mit Fehlerbehandlung
