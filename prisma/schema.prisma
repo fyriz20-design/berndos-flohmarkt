@@ -4,8 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Wir nutzen die Variable, die Vercel am liebsten mag
-  url      = env("POSTGRES_PRISMA_URL") 
+  // Wir nutzen DATABASE_URL, da Vercel diese automatisch für Prisma Postgres setzt
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  // WICHTIG: Füge diese Zeile hinzu, um die Engine für Vercel zu optimieren
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
 model Article {
