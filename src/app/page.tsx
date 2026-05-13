@@ -4,54 +4,40 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  let products: any[] = [];
-  
+  let products = [];
   try {
-    // Hier laden wir die echten Daten aus deiner Prisma Postgres DB
+    // Holen der Daten über den Prisma Proxy
     products = await prisma.article.findMany({
       orderBy: { createdAt: 'desc' }
     });
   } catch (error) {
-    console.error("Datenbank-Fehler:", error);
-    // Falls die DB noch schläft, bleibt die Liste leer statt abzustürzen
-    products = [];
+    console.error("DB-Verbindungsfehler:", error);
+    products = []; // Seite stürzt nicht ab, zeigt nur "leer"
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      {/* Navigation */}
-      <nav className="bg-white shadow-md p-4 flex justify-between items-center px-8 sticky top-0 z-50">
-        <h1 className="text-2xl font-bold text-blue-800">Berndos Flohmarkt</h1>
-        <div className="space-x-6 flex items-center">
-          <Link href="/cart" className="hover:text-blue-600 font-medium">Warenkorb</Link>
-          <Link href="/admin" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Admin</Link>
-        </div>
-      </nav>
-
-      {/* Hero Bereich */}
-      <header className="py-16 px-4 text-center bg-white border-b">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-2">Stöbern, Finden, Freuen!</h2>
-        <p className="text-lg text-gray-600">Entdecke tolle Schätze auf unserem Online-Flohmarkt.</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-8">
+      <header className="w-full max-w-4xl flex justify-between items-center mb-12">
+        <h1 className="text-3xl font-bold text-blue-700">Berndos Flohmarkt</h1>
+        <Link href="/admin" className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Admin</Link>
       </header>
 
-      {/* Produkt-Grid */}
-      <main className="max-w-6xl mx-auto p-8">
+      <main className="w-full max-w-4xl bg-white shadow-xl rounded-2xl p-8 min-h-[400px] flex flex-col items-center justify-center border border-gray-100">
+        <h2 className="text-2xl font-semibold mb-4">Stöbern, Finden, Freuen!</h2>
+        
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {products.map((p) => (
-              <div key={p.id} className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-bold mb-2">{p.name || p.title}</h3>
-                <p className="text-blue-600 font-bold text-2xl mb-4">{p.price} €</p>
-                <Link href={`/articles/${p.id}`} className="text-blue-500 hover:underline font-medium">
-                  Details anzeigen →
-                </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            {products.map((p: any) => (
+              <div key={p.id} className="border p-4 rounded-lg bg-blue-50">
+                <p className="font-bold text-lg">{p.name}</p>
+                <p className="text-blue-600 font-black">{p.price} €</p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-500 text-xl font-medium">Noch keine Schätze online.</p>
-            <p className="text-gray-400 mt-2">Die Datenbank ist bereit. Füge im Admin-Bereich den ersten Artikel hinzu!</p>
+          <div className="text-center text-gray-500">
+            <p className="text-xl">Die Technik steht! ✅</p>
+            <p className="mt-2 text-sm italic">Keine Artikel gefunden oder Datenbank lädt noch...</p>
           </div>
         )}
       </main>
