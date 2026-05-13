@@ -18,7 +18,8 @@ const updated = await (prisma as any).product.update({
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await prisma.product.delete({
+    // Ändere Zeile 21 zu:
+await (prisma as any).product.delete({
       where: { id },
     });
     return NextResponse.json({ message: 'Produkt gelöscht' });
