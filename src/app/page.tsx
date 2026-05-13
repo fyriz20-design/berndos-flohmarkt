@@ -13,12 +13,13 @@ export default async function HomePage() {
     });
   } catch (error) {
     console.error("Datenbank-Fehler:", error);
-    // Leeres Array, damit die Seite nicht abstürzt
+    // Falls die DB noch schläft, bleibt die Liste leer statt abzustürzen
     products = [];
   }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      {/* Navigation */}
       <nav className="bg-white shadow-md p-4 flex justify-between items-center px-8 sticky top-0 z-50">
         <h1 className="text-2xl font-bold text-blue-800">Berndos Flohmarkt</h1>
         <div className="space-x-6 flex items-center">
@@ -27,11 +28,13 @@ export default async function HomePage() {
         </div>
       </nav>
 
+      {/* Hero Bereich */}
       <header className="py-16 px-4 text-center bg-white border-b">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-2">Stöbern, Finden, Freuen!</h2>
         <p className="text-lg text-gray-600">Entdecke tolle Schätze auf unserem Online-Flohmarkt.</p>
       </header>
 
+      {/* Produkt-Grid */}
       <main className="max-w-6xl mx-auto p-8">
         {products.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -47,8 +50,8 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-500 text-xl">Aktuell sind keine Artikel online.</p>
-            <p className="text-gray-400 mt-2">Schau später wieder vorbei oder füge im Admin-Bereich etwas hinzu!</p>
+            <p className="text-gray-500 text-xl font-medium">Noch keine Schätze online.</p>
+            <p className="text-gray-400 mt-2">Die Datenbank ist bereit. Füge im Admin-Bereich den ersten Artikel hinzu!</p>
           </div>
         )}
       </main>
