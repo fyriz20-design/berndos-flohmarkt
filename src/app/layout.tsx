@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import ProductList from './ProductList'; // Wir nutzen deine vorhandene Komponente!
+import ProductList from './ProductList';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,11 +7,11 @@ export default async function HomePage() {
   let products = [];
   
   try {
-    // Wir versuchen alle möglichen Namen für deine Produkte in der Datenbank
     const prismaAny = prisma as any;
     if (prismaAny) {
-      products = await (prismaAny.product?.findMany() || 
-                        prismaAny.article?.findMany() || 
+      // Wir holen die Daten und nennen sie intern 'products'
+      products = await (prismaAny.article?.findMany() || 
+                        prismaAny.product?.findMany() || 
                         []);
     }
   } catch (error) {
@@ -36,11 +36,11 @@ export default async function HomePage() {
       </header>
 
       <main className="max-w-7xl mx-auto py-10 px-4">
-        {/* Hier rufen wir deine alte ProductList auf, falls sie Daten braucht */}
+        {/* Wir übergeben die Daten an 'initialArticles', wie vom Code verlangt */}
         {products.length > 0 ? (
-          <ProductList products={products} />
+          <ProductList initialArticles={products} />
         ) : (
-          <p className="text-center text-gray-500">Lade Artikel...</p>
+          <p className="text-center text-gray-500 py-20">Keine Artikel gefunden oder Datenbank lädt...</p>
         )}
       </main>
     </div>
