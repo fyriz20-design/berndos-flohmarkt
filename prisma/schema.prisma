@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  imageUrl    String?
+  stock       Int      @default(1)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  customerName    String
+  customerEmail   String
+  customerAddress String
+  subtotal        Float    @default(0)
+  shippingCost    Float    @default(6.20)
+  totalAmount     Float
+  paymentMethod   String
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  itemsJson       String   
+}
+
+model Setting {
+  id               String @id @default("global")
+  paypalClientId   String @default("")
+  bankIban         String @default("")
+  bankBic          String @default("")
+  bankHolder       String @default("")
+  bankName         String @default("")
+}
