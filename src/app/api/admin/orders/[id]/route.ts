@@ -4,7 +4,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const body = await request.json();
-    const updated = await prisma.product.update({
+    // Ändere Zeile 7 zu:
+const updated = await (prisma as any).product.update({
       where: { id },
       data: body,
     });
