@@ -8,7 +8,7 @@ export default async function AdminPage() {
   const isAdmin = cookieStore.get('admin_session')?.value === 'true'
 
   if (isAdmin) {
-    let orders = []
+    let orders: any[] = []
     let stats = { totalRevenue: 0 }
 
     try {
