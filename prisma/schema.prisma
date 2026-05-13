@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
@@ -8,11 +9,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-  // WICHTIG: Füge diese Zeile hinzu, um die Engine für Vercel zu optimieren
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
-}
+
+
 
 model Article {
   id          String   @id @default(uuid())
