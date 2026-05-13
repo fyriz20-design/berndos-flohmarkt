@@ -1,11 +1,21 @@
-import React from 'react'
+import "./globals.css"; // WICHTIG: Das lädt dein Design!
+import { Inter } from "next/font/google";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Berndos Flohmarkt",
+  description: "Tolle Schätze online finden",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="de">
-      <body style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
-  )
+  );
 }
