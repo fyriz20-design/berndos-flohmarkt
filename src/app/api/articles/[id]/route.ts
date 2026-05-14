@@ -1,29 +1,32 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+// GET - Einzelnen Artikel laden
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const products = await (prisma as any).product.findMany();
-    return NextResponse.json(products);
+    const { id } = await params;
+    const article = await (prisma as any).article.findUnique({ where: { id } });
+    if (!article) return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 });
+    return NextResponse.json(article);
   } catch (error) {
-    return NextResponse.json({ error: 'Fehler beim Laden der Produkte' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler' }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+// DELETE - Artikel löschen
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const body = await request.json();
-    const product = await (prisma as any).product.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        price: parseFloat(body.price),
-        imageUrl: body.imageUrl,
-        isVisible: true
-      } 
-    });
-    return NextResponse.json(product);
+    const { id } = await params;
+    await (prisma as any).article.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Fehler beim Erstellen des Produkts' }, { status: 500 });
+    console.error('Fehler beim Löschen:', error);
+    return NextResponse.json({ error: 'Fehler beim Löschen' }, { status: 500 });
   }
 }
