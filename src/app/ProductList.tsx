@@ -296,7 +296,7 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
                           fontWeight: 600,
                           color: article.stock > 0 ? (article.stock <= 3 ? '#f59e0b' : '#10b981') : '#ef4444'
                         }}>
-                         `📦 Nur noch ${article.stock} Stück`
+                        {'📦 Nur noch ' + article.stock + ' Stück'}
                         </span>
                       </div>
                       <button
