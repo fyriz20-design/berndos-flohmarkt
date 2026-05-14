@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       data: {
         customerName: body.name || "Unbekannt",
         customerEmail: body.email || "keine@email.de",
-        customerAddress: body.customerAddress || "Keine Adresse",
+        customerAddress: `${body.address || ''}, ${body.zip || ''} ${body.city || ''}`.trim() || "Keine Adresse",
         subtotal: parseFloat(body.subtotal?.toString() || "0"),
         shippingCost: parseFloat(body.shippingCost?.toString() || "6.20"),
         totalAmount: parseFloat(body.totalAmount?.toString() || "0"),
