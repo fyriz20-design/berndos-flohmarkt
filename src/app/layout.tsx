@@ -21,9 +21,8 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
+  verification: {
+    google: 'p_bHiLbOrdmrEG36ujbV_2rrefcyf5GwaZj6FA88C4c',
   },
 };
 
