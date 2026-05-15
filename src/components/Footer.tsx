@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -8,6 +9,9 @@ export default function Footer() {
       padding: 'clamp(2.5rem, 6vw, 4rem) 1.5rem clamp(1.5rem, 4vw, 2.5rem)',
       marginTop: 'auto',
     }}>
+      <style>{`
+        .footer-link:hover { color: #6d28d9 !important; }
+      `}</style>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
         {/* Top section */}
@@ -54,10 +58,7 @@ export default function Footer() {
                 { href: '/cart', label: '🛒 Warenkorb' },
                 { href: '/kontakt', label: '✉️ Kontakt' },
               ].map(link => (
-                <Link key={link.href} href={link.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.9375rem', color: '#78716c', textDecoration: 'none', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}
-                  onMouseOver={e => (e.currentTarget.style.color = '#6d28d9')}
-                  onMouseOut={e => (e.currentTarget.style.color = '#78716c')}
-                >
+                <Link key={link.href} href={link.href} className="footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.9375rem', color: '#78716c', textDecoration: 'none', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
                   {link.label}
                 </Link>
               ))}
@@ -72,10 +73,7 @@ export default function Footer() {
                 { href: '/impressum', label: 'ℹ️ Impressum' },
                 { href: '/datenschutz', label: '🔒 Datenschutz' },
               ].map(link => (
-                <Link key={link.href} href={link.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.9375rem', color: '#78716c', textDecoration: 'none', transition: 'color 0.2s' }}
-                  onMouseOver={e => (e.currentTarget.style.color = '#6d28d9')}
-                  onMouseOut={e => (e.currentTarget.style.color = '#78716c')}
-                >
+                <Link key={link.href} href={link.href} className="footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.9375rem', color: '#78716c', textDecoration: 'none', transition: 'color 0.2s' }}>
                   {link.label}
                 </Link>
               ))}
