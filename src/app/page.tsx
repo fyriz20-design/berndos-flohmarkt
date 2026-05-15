@@ -131,7 +131,7 @@ export default async function HomePage() {
             {[
               { icon: '🏷️', label: 'Einzelstücke', sub: 'Jedes einmalig' },
               { icon: '💳', label: 'Sicher zahlen', sub: 'PayPal & Überweisung' },
-              { icon: '📦', label: 'Schnell versandt', sub: 'Per DHL' },
+              { icon: '📦', label: 'Schneller Versand', sub: 'Per DHL' },
             ].map((item) => (
               <div key={item.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem' }}>{item.icon}</div>
