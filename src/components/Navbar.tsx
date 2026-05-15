@@ -44,9 +44,24 @@ export default function Navbar() {
             {navItems.map(item => {
               const isActive = pathname === item.href;
               return (
-                <Link key={item.href} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 0.875rem', fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 600 : 500, fontSize: '0.8125rem', color: isActive ? 'white' : '#78716c', textDecoration: 'none', borderRadius: '999px', background: isActive ? 'linear-gradient(135deg, #6d28d9, #a855f7)' : 'transparent', boxShadow: isActive ? '0 2px 8px rgba(109,40,217,0.3)' : 'none', transition: 'all 250ms ease', whiteSpace: 'nowrap' }}
-                  onMouseOver={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = '#f5f0ff'; (e.currentTarget as HTMLElement).style.color = '#6d28d9'; } }}
-                  onMouseOut={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#78716c'; } }}
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={isActive ? 'nav-link-desktop nav-link-desktop--active' : 'nav-link-desktop'}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.375rem',
+                    padding: '0.5rem 0.875rem',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: '0.8125rem',
+                    color: isActive ? 'white' : '#78716c',
+                    textDecoration: 'none',
+                    borderRadius: '999px',
+                    background: isActive ? 'linear-gradient(135deg, #6d28d9, #a855f7)' : 'transparent',
+                    boxShadow: isActive ? '0 2px 8px rgba(109,40,217,0.3)' : 'none',
+                    transition: 'all 250ms ease',
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   <span style={{ fontSize: '0.875rem' }}>{item.icon}</span>
                   <span className="nav-label">{item.label}</span>
@@ -95,6 +110,11 @@ export default function Navbar() {
       )}
 
       <style jsx global>{`
+        .nav-link-desktop:not(.nav-link-desktop--active):hover {
+          background: #f5f0ff !important;
+          color: #6d28d9 !important;
+        }
+
         @media (max-width: 768px) {
           nav { display: none !important; }
           .mobile-only { display: flex !important; }
