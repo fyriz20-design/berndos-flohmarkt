@@ -10,6 +10,7 @@ export default function Navbar() {
   const { items } = useCart();
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const [isOpen, setIsOpen] = useState(false);
+  function close() { setIsOpen(false); }
 
   const navItems = [
     { href: '/', label: 'Markt', icon: '🏪' },
@@ -21,67 +22,48 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="navbar glass">
-      <div className="container navbar-container">
-        <Link href="/" className="navbar-brand" onClick={() => setIsOpen(false)}>
-          <div className="navbar-logo-icon">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <defs>
-                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#7c3aed" />
-                  <stop offset="100%" stopColor="#ec4899" />
-                </linearGradient>
-              </defs>
-              <path d="M14 2L3 8v12l11 6 11-6V8L14 2z" fill="url(#logoGrad)" opacity="0.9"/>
-              <path d="M14 5L6 9.5v9L14 23l8-4.5v-9L14 5z" fill="white" opacity="0.3"/>
-              <path d="M10 13.5c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4z" fill="white" opacity="0.9"/>
-            </svg>
-          </div>
-          <div className="navbar-brand-text">
-            <span className="navbar-brand-name">Berndos- Flohmarkt</span>
-            <span className="navbar-brand-sub">Flohmarkt • Privatverkauf</span>
-          </div>
-        </Link>
-
-        {/* Desktop Links */}
-        <nav className={`nav-links ${isOpen ? 'nav-links-open' : ''}`}>
-          {navItems.map(item => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`nav-link ${isActive ? 'nav-link-active' : ''}`}
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="nav-link-icon">{item.icon}</span>
-                <span className="nav-link-label-mobile">{item.label}</span>
-                {item.href === '/cart' && cartCount > 0 && (
-                  <span className="nav-cart-badge">{cartCount}</span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="navbar-actions">
-          {/* Always visible cart icon for mobile */}
-          <Link href="/cart" className="navbar-mobile-cart" aria-label="Warenkorb">
-            <span className="nav-link-icon">🛒</span>
-            {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+    <>
+      <header className="navbar glass">
+        <div className="navbar-container">
+          <Link href="/" className="navbar-brand" onClick={close}>
+            <div className="navbar-logo-icon">
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                <defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#fff"/><stop offset="100%" stopColor="#e9d5ff"/></linearGradient></defs>
+                <path d="M14 2L3 8v12l11 6 11-6V8L14 2z" fill="url(#lg)" opacity="0.9"/>
+                <path d="M10 13.5c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4z" fill="white" opacity="0.9"/>
+              </svg>
+            </div>
+            <div className="navbar-brand-text">
+              <span className="navbar-brand-name">Berndos- Flohmarkt</span>
+              <span className="navbar-brand-sub">Flohmarkt • Privatverkauf</span>
+            </div>
           </Link>
 
-          <button 
-            className={`navbar-mobile-toggle ${isOpen ? 'navbar-mobile-toggle-active' : ''}`} 
-            aria-label="Menü öffnen" 
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          <nav className={`nav-links ${isOpen ? 'nav-links-open' : ''}`}>
+            {navItems.map(item => {
+              const isActive = pathname === item.href;
+              return (
+                <Link key={item.href} href={item.href} className={`nav-link ${isActive ? 'nav-link-active' : ''}`} onClick={close}>
+                  <span className="nav-link-icon">{item.icon}</span>
+                  <span className="nav-link-label-mobile">{item.label}</span>
+                  {item.href === '/cart' && cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="navbar-actions">
+            <Link href="/cart" className="navbar-mobile-cart" onClick={close}>
+              <span>🛒</span>
+              {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+            </Link>
+            <button className={`navbar-mobile-toggle ${isOpen ? 'navbar-mobile-toggle-active' : ''}`} onClick={() => setIsOpen(!isOpen)} aria-label="Menue">
+              <span></span><span></span><span></span>
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      {isOpen && <div className="nav-overlay nav-overlay-visible" onClick={close} />}
+    </>
   );
 }
