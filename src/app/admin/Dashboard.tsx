@@ -201,6 +201,33 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", minHeight: '100vh', background: '#f8f7ff', padding: '2rem 1rem' }}>
+
+      {/* ── FIX: Mobile-Responsive für Artikel-Karten-Buttons ── */}
+      <style>{`
+        .article-card-row {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+        }
+        .article-card-actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-shrink: 0;
+        }
+        @media (max-width: 600px) {
+          .article-card-row {
+            flex-wrap: wrap;
+          }
+          .article-card-actions {
+            width: 100%;
+            justify-content: flex-end;
+            border-top: 1px solid #f3e8ff;
+            padding-top: 0.75rem;
+            margin-top: 0.25rem;
+          }
+        }
+      `}</style>
+
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -285,7 +312,11 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               <div style={{ display: 'grid', gap: '1rem' }}>
                 {articles.map(article => (
                   <div key={article.id}>
-                    <div style={{ background: 'white', borderRadius: editingArticle?.id === article.id ? '16px 16px 0 0' : '16px', padding: '1.25rem', border: '1px solid #f3e8ff', borderBottom: editingArticle?.id === article.id ? 'none' : '1px solid #f3e8ff', display: 'flex', gap: '1rem', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    {/* ── FIX: className statt inline display:flex ── */}
+                    <div
+                      className="article-card-row"
+                      style={{ background: 'white', borderRadius: editingArticle?.id === article.id ? '16px 16px 0 0' : '16px', padding: '1.25rem', border: '1px solid #f3e8ff', borderBottom: editingArticle?.id === article.id ? 'none' : '1px solid #f3e8ff', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+                    >
                       {article.imageUrl
                         ? <img src={article.imageUrl} alt={article.title} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0, border: '1px solid #f3e8ff' }} />
                         : <div style={{ width: '80px', height: '80px', borderRadius: '10px', background: '#f5f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', flexShrink: 0 }}>📷</div>
@@ -299,7 +330,8 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{new Date(article.createdAt).toLocaleDateString('de-DE')}</span>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                      {/* ── FIX: className statt inline flexShrink:0 ── */}
+                      <div className="article-card-actions">
                         <button onClick={() => editingArticle?.id === article.id ? cancelEdit() : startEdit(article)} style={{ padding: '0.5rem 1rem', background: editingArticle?.id === article.id ? '#f3f4f6' : '#ede9fe', color: editingArticle?.id === article.id ? '#6b7280' : '#7c3aed', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
                           {editingArticle?.id === article.id ? '✕ Schließen' : '✏️ Bearbeiten'}
                         </button>
