@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import ProductList from './ProductList';
-import RainbowWave from '@/components/RainbowWave';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,30 +14,152 @@ export default async function HomePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f7ff' }}>
-      {/* Hero */}
-      <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #faf5ff 100%)', paddingTop: 'clamp(2.5rem, 8vw, 5rem)', paddingBottom: 'clamp(4rem, 10vw, 7rem)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+
+      {/* ===== HERO ===== */}
+      <div style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(160deg, #fef9ef 0%, #f5f0ff 55%, #fdf4ff 100%)',
+        paddingTop: 'clamp(3rem, 10vw, 6rem)',
+        paddingBottom: 'clamp(5rem, 12vw, 8rem)',
+      }}>
+        {/* Decorative circles */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '50%', height: '100%', background: 'radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '50%', height: '100%', background: 'radial-gradient(circle, rgba(236,72,153,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ position: 'absolute', top: '-15%', right: '-8%', width: 'clamp(250px, 45vw, 500px)', height: 'clamp(250px, 45vw, 500px)', background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 'clamp(200px, 40vw, 450px)', height: 'clamp(200px, 40vw, 450px)', background: 'radial-gradient(circle, rgba(109,40,217,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: 'clamp(300px, 60vw, 700px)', height: 'clamp(200px, 35vw, 400px)', background: 'radial-gradient(ellipse, rgba(236,72,153,0.06) 0%, transparent 70%)' }} />
+          {/* Floating dots decoration */}
+          {[
+            { top: '15%', left: '8%', size: 8, color: '#f59e0b', delay: '0s' },
+            { top: '60%', left: '5%', size: 5, color: '#a855f7', delay: '1s' },
+            { top: '25%', right: '12%', size: 6, color: '#ec4899', delay: '0.5s' },
+            { top: '70%', right: '8%', size: 10, color: '#f59e0b', delay: '1.5s' },
+          ].map((dot, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              top: dot.top,
+              left: (dot as any).left,
+              right: (dot as any).right,
+              width: dot.size,
+              height: dot.size,
+              background: dot.color,
+              borderRadius: '50%',
+              opacity: 0.6,
+              animation: `float 4s ease-in-out ${dot.delay} infinite`,
+            }} />
+          ))}
         </div>
-        <RainbowWave />
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1200px', margin: '0 auto', padding: '0 1.25rem', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(124,58,237,0.08)', color: '#7c3aed', padding: '0.375rem 1rem', borderRadius: '999px', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '1.25rem', border: '1px solid rgba(124,58,237,0.15)' }}>
-            🏪 Privater Flohmarkt
+
+        {/* Rainbow wave bottom */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, zIndex: 1 }}>
+          <svg viewBox="0 0 1440 80" preserveAspectRatio="none" style={{ width: '100%', height: 'clamp(40px, 6vw, 80px)', display: 'block' }}>
+            <defs>
+              <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#ef4444" stopOpacity="0.7" />
+                <stop offset="25%" stopColor="#f59e0b" stopOpacity="0.7" />
+                <stop offset="50%" stopColor="#10b981" stopOpacity="0.7" />
+                <stop offset="75%" stopColor="#6366f1" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#a855f7" stopOpacity="0.7" />
+              </linearGradient>
+            </defs>
+            <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="url(#waveGrad)" />
+          </svg>
+        </div>
+
+        {/* Hero Content */}
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1100px', margin: '0 auto', padding: '0 1.25rem', textAlign: 'center' }}>
+          {/* Tag */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            color: '#d97706',
+            padding: '0.375rem 1.125rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            marginBottom: '1.5rem',
+            fontFamily: "'DM Sans', sans-serif",
+            letterSpacing: '0.01em',
+          }}>
+            ✨ Privater Flohmarkt • Einzelstücke
           </div>
-          <h1 style={{ fontSize: 'clamp(2rem, 7vw, 4.5rem)', fontWeight: 900, color: '#1e1b4b', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-            Berndos- Flohmarkt
+
+          {/* Title */}
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(2.25rem, 8vw, 5rem)',
+            fontWeight: 900,
+            color: '#1c1917',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.05,
+            marginBottom: '1.375rem',
+          }}>
+            Berndos{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #6d28d9, #a855f7, #ec4899)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontStyle: 'italic',
+            }}>
+              Flohmarkt
+            </span>
           </h1>
-          <p style={{ maxWidth: '520px', margin: '0 auto', color: '#6b7280', fontSize: 'clamp(0.9375rem, 2.5vw, 1.125rem)', lineHeight: 1.7 }}>
-            Privater Flohmarkt mit schönen Einzelstücken. Stöbere, stelle eine Kaufanfrage und bezahle per PayPal oder Banküberweisung.
+
+          {/* Subtitle */}
+          <p style={{
+            maxWidth: '540px',
+            margin: '0 auto 2rem',
+            color: '#78716c',
+            fontSize: 'clamp(1rem, 2.5vw, 1.1875rem)',
+            lineHeight: 1.75,
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 400,
+          }}>
+            Stöbere durch schöne Einzelstücke aus privatem Besitz. Bezahle bequem per PayPal oder Banküberweisung.
           </p>
+
+          {/* Stats row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 'clamp(1.5rem, 4vw, 3rem)',
+            flexWrap: 'wrap',
+          }}>
+            {[
+              { icon: '🏷️', label: 'Einzelstücke', sub: 'Jedes einmalig' },
+              { icon: '💳', label: 'Sicher zahlen', sub: 'PayPal & Überweisung' },
+              { icon: '📦', label: 'Schnell versandt', sub: 'Per DHL' },
+            ].map((item) => (
+              <div key={item.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem' }}>{item.icon}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '0.9375rem', color: '#1c1917' }}>{item.label}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8125rem', color: '#a8a29e' }}>{item.sub}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Produkte */}
-      <main style={{ maxWidth: '1200px', margin: '-3rem auto 0', padding: '0 0.75rem 4rem', position: 'relative', zIndex: 10 }}>
-        <div style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 'clamp(16px, 3vw, 28px)', padding: 'clamp(1rem, 4vw, 2rem)', boxShadow: '0 20px 60px rgba(124,58,237,0.08)', border: '1px solid rgba(255,255,255,0.8)' }}>
+      {/* ===== PRODUCTS ===== */}
+      <main style={{
+        maxWidth: '1200px',
+        margin: '-2rem auto 0',
+        padding: '0 0.75rem 5rem',
+        position: 'relative',
+        zIndex: 10,
+      }}>
+        <div style={{
+          background: 'rgba(255, 253, 248, 0.9)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: 'clamp(16px, 3vw, 28px)',
+          padding: 'clamp(1.25rem, 4vw, 2.25rem)',
+          boxShadow: '0 20px 60px rgba(120, 80, 20, 0.08), 0 1px 0 rgba(255,255,255,0.9) inset',
+          border: '1px solid rgba(231, 224, 213, 0.6)',
+        }}>
           <ProductList initialArticles={products} />
         </div>
       </main>

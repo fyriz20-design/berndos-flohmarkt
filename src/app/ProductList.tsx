@@ -18,7 +18,6 @@ type SortOption = 'newest' | 'oldest' | 'price-asc' | 'price-desc' | 'name-asc'
 export default function ProductList({ initialArticles }: { initialArticles: any[] }) {
   const { addToCart } = useCart()
   const articles = initialArticles as Article[]
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
@@ -51,148 +50,161 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
 
   return (
     <>
-      {/* Search & Sort */}
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        <div style={{ flex: '1 1 300px', display: 'flex', alignItems: 'center', background: 'white', borderRadius: '999px', border: '1.5px solid #e9d5ff', padding: '0.25rem 0.25rem 0.25rem 1.25rem', boxShadow: '0 2px 8px rgba(124,58,237,0.06)' }}>
-          <span style={{ color: '#9ca3af', marginRight: '0.5rem', fontSize: '1rem' }}>🔍</span>
-          <input
-            type="text"
-            placeholder="Suchen (z. B. Fahrrad, LEGO, Nintendo...)"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: '0.9375rem', color: '#1e1b4b', fontFamily: 'inherit' }}
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} style={{ background: '#f3f4f6', border: 'none', borderRadius: '999px', width: '28px', height: '28px', cursor: 'pointer', fontSize: '0.75rem', color: '#6b7280', flexShrink: 0 }}>✕</button>
-          )}
-          <button style={{ padding: '0.5rem 1.25rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', border: 'none', borderRadius: '999px', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>
-            Suchen
-          </button>
+      {/* Header row */}
+      <div style={{ marginBottom: '1.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.125rem', flexWrap: 'wrap' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.375rem, 4vw, 1.75rem)', fontWeight: 700, color: '#1c1917', margin: 0 }}>
+            Alle Artikel
+          </h2>
+          <span style={{ background: 'linear-gradient(135deg, #6d28d9, #ec4899)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontSize: '0.8125rem', fontWeight: 700 }}>
+            {filteredAndSorted.length}
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-          <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>
-            {filteredAndSorted.length} Artikel
-          </span>
+        {/* Search & Sort */}
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'stretch' }}>
+          <div style={{ flex: '1 1 280px', display: 'flex', alignItems: 'center', background: 'white', borderRadius: '999px', border: '1.5px solid var(--color-border)', padding: '0.25rem 0.375rem 0.25rem 1.125rem', boxShadow: '0 2px 6px rgba(120,80,20,0.06)' }}>
+            <span style={{ color: '#a8a29e', marginRight: '0.5rem', fontSize: '1rem', flexShrink: 0 }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Suchen... (Fahrrad, LEGO, Nintendo...)"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ flex: 1, border: 'none', outline: 'none', background: 'none', fontFamily: "'DM Sans', sans-serif", fontSize: 'max(16px, 0.9375rem)', color: '#1c1917', minWidth: 0 }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} style={{ background: '#f5f0ff', border: 'none', borderRadius: '999px', width: '28px', height: '28px', cursor: 'pointer', color: '#6d28d9', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            )}
+            <button style={{ padding: '0.5rem 1.125rem', background: 'linear-gradient(135deg, #6d28d9, #a855f7)', color: 'white', border: 'none', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', marginLeft: '0.375rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              Suchen
+            </button>
+          </div>
+
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as SortOption)}
-            style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1.5px solid #e9d5ff', fontSize: '0.875rem', color: '#374151', background: 'white', cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}
+            style={{ padding: '0.625rem 1rem', borderRadius: '999px', border: '1.5px solid var(--color-border)', fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', color: '#78716c', background: 'white', cursor: 'pointer', outline: 'none', flexShrink: 0, boxShadow: '0 2px 6px rgba(120,80,20,0.06)' }}
           >
             <option value="newest">Neueste zuerst</option>
             <option value="oldest">Älteste zuerst</option>
-            <option value="price-asc">Preis aufsteigend</option>
-            <option value="price-desc">Preis absteigend</option>
+            <option value="price-asc">Preis ↑</option>
+            <option value="price-desc">Preis ↓</option>
             <option value="name-asc">Name A-Z</option>
           </select>
         </div>
       </div>
 
-      {/* Product Grid */}
+      {/* Empty state */}
       {filteredAndSorted.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-          <p style={{ fontSize: '1.125rem', fontWeight: 600, color: '#1e1b4b', marginBottom: '0.5rem' }}>Keine Artikel gefunden</p>
-          <p>Versuche es mit einem anderen Suchbegriff.</p>
+        <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#78716c' }}>
+          <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🔍</div>
+          <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.375rem', fontWeight: 700, color: '#1c1917', marginBottom: '0.5rem' }}>Nichts gefunden</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif" }}>Versuche einen anderen Suchbegriff.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(240px, 30vw, 300px), 1fr))', gap: 'clamp(1rem, 3vw, 1.75rem)' }}>
           {filteredAndSorted.map((article, index) => (
             <div
               key={article.id}
               style={{
-                background: 'white',
-                borderRadius: '20px',
-                border: '1px solid #f3e8ff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                background: 'linear-gradient(145deg, #ffffff 0%, #fdfaf5 100%)',
+                borderRadius: 'clamp(16px, 3vw, 24px)',
+                border: '1px solid rgba(231, 224, 213, 0.8)',
+                boxShadow: '0 2px 10px rgba(120,80,20,0.06), 0 1px 2px rgba(120,80,20,0.04)',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease',
-                animation: `fadeInUp 0.4s ease-out ${index * 0.06}s both`,
+                transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease',
+                animation: `fadeInUp 0.45s ease-out ${index * 0.07}s both`,
                 cursor: 'pointer',
               }}
               onMouseOver={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 12px 30px rgba(124,58,237,0.12)'
+                (e.currentTarget as HTMLElement).style.transform = 'translateY(-5px) rotate(0.3deg)'
+                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 20px 50px rgba(109,40,217,0.14), 0 4px 12px rgba(109,40,217,0.08)'
               }}
               onMouseOut={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'
+                (e.currentTarget as HTMLElement).style.transform = 'translateY(0) rotate(0deg)'
+                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 2px 10px rgba(120,80,20,0.06), 0 1px 2px rgba(120,80,20,0.04)'
               }}
             >
               {/* Image */}
               <div
                 onClick={() => setSelectedArticle(article)}
-                style={{ height: '220px', background: '#f5f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}
+                style={{ height: 'clamp(180px, 25vw, 240px)', background: 'linear-gradient(135deg, #f5f0ff, #fef9ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}
               >
                 {article.imageUrl ? (
                   <img
                     src={article.imageUrl}
                     alt={article.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }}
-                    onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                    onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.06)')}
                     onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}
                   />
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#c4b5fd' }}>
                     <span style={{ fontSize: '3rem' }}>📷</span>
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 500 }}>Kein Bild</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8125rem', fontWeight: 500 }}>Kein Bild</span>
                   </div>
                 )}
-                {/* Zoom hint */}
-                <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '999px', padding: '0.25rem 0.625rem', fontSize: '0.6875rem', fontWeight: 600, backdropFilter: 'blur(4px)' }}>
+                {/* Detail badge */}
+                <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderRadius: '999px', padding: '0.25rem 0.625rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.6875rem', fontWeight: 600, color: '#6d28d9', border: '1px solid rgba(109,40,217,0.15)' }}>
                   🔍 Details
                 </div>
                 {article.stock <= 0 && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ color: 'white', fontWeight: 800, fontSize: '1.125rem', background: '#ef4444', padding: '0.5rem 1rem', borderRadius: '999px' }}>Ausverkauft</span>
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,25,23,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(2px)' }}>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", color: 'white', fontWeight: 800, fontSize: '1rem', background: '#dc2626', padding: '0.5rem 1.25rem', borderRadius: '999px' }}>Ausverkauft</span>
                   </div>
                 )}
               </div>
 
               {/* Content */}
-              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.75rem' }}>
+              <div style={{ padding: 'clamp(1rem, 3vw, 1.375rem)', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.875rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1e1b4b', lineHeight: 1.3, flex: 1, margin: 0 }}>{article.title}</h3>
-                  <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.3rem 0.875rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.9375rem', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: '0 2px 8px rgba(124,58,237,0.25)' }}>
+                  <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', fontWeight: 700, color: '#1c1917', lineHeight: 1.3, flex: 1, margin: 0 }}>
+                    {article.title}
+                  </h3>
+                  <span style={{ background: 'linear-gradient(135deg, #6d28d9, #ec4899)', color: 'white', padding: '0.3125rem 0.875rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: '0.9375rem', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: '0 3px 10px rgba(109,40,217,0.3)' }}>
                     {article.price.toFixed(2)} €
                   </span>
                 </div>
 
                 {article.description && (
-                  <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.5, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as React.CSSProperties}>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", color: '#78716c', fontSize: '0.875rem', lineHeight: 1.6, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as React.CSSProperties}>
                     {article.description}
                   </p>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid rgba(231,224,213,0.6)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: '#f5f0ff', color: '#7c3aed', padding: '0.25rem 0.625rem', borderRadius: '999px', fontSize: '0.6875rem', fontWeight: 600 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: 'rgba(245,158,11,0.1)', color: '#d97706', padding: '0.2rem 0.625rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontSize: '0.6875rem', fontWeight: 600, border: '1px solid rgba(245,158,11,0.2)', width: 'fit-content' }}>
                       🏷️ Einzelstück
                     </span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: article.stock > 0 ? (article.stock <= 3 ? '#f59e0b' : '#10b981') : '#ef4444' }}>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: article.stock > 0 ? (article.stock <= 3 ? '#d97706' : '#059669') : '#dc2626' }}>
                       {article.stock > 0 ? `📦 Noch ${article.stock} verfügbar` : '❌ Ausverkauft'}
                     </span>
                   </div>
+
                   <button
                     onClick={() => handleAddToCart(article)}
                     disabled={article.stock <= 0}
                     style={{
                       padding: '0.5rem 1rem',
-                      background: article.stock <= 0 ? '#e5e7eb' : addedId === article.id ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #ec4899)',
-                      color: article.stock <= 0 ? '#9ca3af' : 'white',
+                      background: article.stock <= 0 ? '#e7e5e4' : addedId === article.id ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #6d28d9, #ec4899)',
+                      color: article.stock <= 0 ? '#a8a29e' : 'white',
                       border: 'none',
                       borderRadius: '999px',
+                      fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 700,
                       fontSize: '0.8125rem',
                       cursor: article.stock <= 0 ? 'not-allowed' : 'pointer',
                       transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-                      boxShadow: article.stock <= 0 ? 'none' : '0 2px 8px rgba(124,58,237,0.25)',
+                      boxShadow: article.stock <= 0 ? 'none' : addedId === article.id ? '0 4px 12px rgba(5,150,105,0.3)' : '0 4px 12px rgba(109,40,217,0.3)',
                       transform: addedId === article.id ? 'scale(1.05)' : 'scale(1)',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
                     }}
                   >
-                    {article.stock <= 0 ? 'Ausverkauft' : addedId === article.id ? '✓ Hinzugefügt' : '🛒 In den Warenkorb'}
+                    {article.stock <= 0 ? 'Ausverkauft' : addedId === article.id ? '✓ Hinzugefügt' : '🛒 Kaufen'}
                   </button>
                 </div>
               </div>
@@ -201,62 +213,58 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
         </div>
       )}
 
-      {/* Artikel Detail Modal */}
+      {/* ===== ARTIKEL DETAIL MODAL ===== */}
       {selectedArticle && (
         <div
           onClick={() => setSelectedArticle(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '1rem', animation: 'fadeIn 0.2s ease-out' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,23,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '1rem', animation: 'fadeIn 0.25s ease-out' }}
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '24px', maxWidth: '600px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.3)', animation: 'fadeInUp 0.3s ease-out', maxHeight: '90vh', overflowY: 'auto' }}
+            style={{ background: 'linear-gradient(145deg, #ffffff, #fdfaf5)', borderRadius: 'clamp(20px, 4vw, 32px)', maxWidth: '600px', width: '100%', overflow: 'hidden', boxShadow: '0 30px 80px rgba(28,25,23,0.35)', animation: 'scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1)', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(231,224,213,0.5)' }}
           >
             {selectedArticle.imageUrl && (
-              <div style={{ height: '300px', overflow: 'hidden' }}>
+              <div style={{ height: 'clamp(220px, 40vw, 320px)', overflow: 'hidden' }}>
                 <img src={selectedArticle.imageUrl} alt={selectedArticle.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             )}
-            <div style={{ padding: '2rem' }}>
+            <div style={{ padding: 'clamp(1.25rem, 4vw, 2rem)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e1b4b', margin: 0 }}>{selectedArticle.title}</h2>
-                <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.375rem 1rem', borderRadius: '999px', fontWeight: 800, fontSize: '1.125rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.375rem, 4vw, 1.75rem)', fontWeight: 700, color: '#1c1917', margin: 0 }}>
+                  {selectedArticle.title}
+                </h2>
+                <span style={{ background: 'linear-gradient(135deg, #6d28d9, #ec4899)', color: 'white', padding: '0.4rem 1.125rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: '1.125rem', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: '0 4px 14px rgba(109,40,217,0.35)' }}>
                   {selectedArticle.price.toFixed(2)} €
                 </span>
               </div>
               {selectedArticle.description && (
-                <p style={{ color: '#374151', lineHeight: 1.7, marginBottom: '1.5rem', fontSize: '1rem' }}>{selectedArticle.description}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", color: '#78716c', lineHeight: 1.75, marginBottom: '1.5rem', fontSize: '1rem' }}>
+                  {selectedArticle.description}
+                </p>
               )}
-              <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.375rem 0.875rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: 600 }}>🏷️ Einzelstück</span>
-                <span style={{ background: selectedArticle.stock > 0 ? '#ecfdf5' : '#fef2f2', color: selectedArticle.stock > 0 ? '#10b981' : '#ef4444', padding: '0.375rem 0.875rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: 600 }}>
+              <div style={{ display: 'flex', gap: '0.625rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(245,158,11,0.1)', color: '#d97706', padding: '0.375rem 0.875rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', fontWeight: 600, border: '1px solid rgba(245,158,11,0.2)' }}>🏷️ Einzelstück</span>
+                <span style={{ background: selectedArticle.stock > 0 ? '#ecfdf5' : '#fef2f2', color: selectedArticle.stock > 0 ? '#059669' : '#dc2626', padding: '0.375rem 0.875rem', borderRadius: '999px', fontFamily: "'DM Sans', sans-serif", fontSize: '0.875rem', fontWeight: 600 }}>
                   {selectedArticle.stock > 0 ? `📦 ${selectedArticle.stock} verfügbar` : '❌ Ausverkauft'}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => { handleAddToCart(selectedArticle); setSelectedArticle(null) }}
                   disabled={selectedArticle.stock <= 0}
-                  style={{ flex: 1, padding: '0.875rem', background: selectedArticle.stock <= 0 ? '#e5e7eb' : 'linear-gradient(135deg, #7c3aed, #ec4899)', color: selectedArticle.stock <= 0 ? '#9ca3af' : 'white', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', cursor: selectedArticle.stock <= 0 ? 'not-allowed' : 'pointer' }}
+                  style={{ flex: 1, minWidth: '140px', padding: '0.875rem', background: selectedArticle.stock <= 0 ? '#e7e5e4' : 'linear-gradient(135deg, #6d28d9, #ec4899)', color: selectedArticle.stock <= 0 ? '#a8a29e' : 'white', border: 'none', borderRadius: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '1rem', cursor: selectedArticle.stock <= 0 ? 'not-allowed' : 'pointer', boxShadow: selectedArticle.stock <= 0 ? 'none' : '0 4px 14px rgba(109,40,217,0.35)' }}
                 >
                   {selectedArticle.stock <= 0 ? 'Ausverkauft' : '🛒 In den Warenkorb'}
                 </button>
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  style={{ padding: '0.875rem 1.25rem', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9375rem' }}
+                  style={{ padding: '0.875rem 1.25rem', background: '#f5f0ee', color: '#78716c', border: 'none', borderRadius: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', fontSize: '0.9375rem' }}
                 >
-                  ✕ Schließen
+                  ✕
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Bild Lightbox */}
-      {selectedImage && (
-        <div onClick={() => setSelectedImage(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '2rem', animation: 'fadeIn 0.2s ease-out', cursor: 'zoom-out' }}>
-          <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', color: 'white', fontSize: '0.875rem', opacity: 0.7 }}>✕ Schließen</div>
-          <img src={selectedImage} alt="Vergrößert" style={{ maxWidth: '90%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '16px', boxShadow: '0 25px 60px rgba(0,0,0,0.5)', animation: 'fadeInUp 0.3s ease-out' }} />
         </div>
       )}
     </>
