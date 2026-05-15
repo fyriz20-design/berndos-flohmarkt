@@ -124,7 +124,7 @@ export default function CartClient() {
               <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f9ff', borderRadius: '12px', border: '1px dashed #0070ba', fontSize: '0.9375rem', lineHeight: 1.7 }}>
                 <p style={{ fontWeight: 700, color: '#0070ba', margin: '0 0 0.5rem' }}>PayPal Zahlung an:</p>
                 <strong>{settings?.paypalClientId || 'berndos59@gmail.com'}</strong>
-                <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', fontStyle: 'italic', color: '#6b7280' }}>Verwendungszweck: Verwendungszweck: Bitte manuell überweisen – siehe E-Mail Adresse>
+                <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', fontStyle: 'italic', color: '#6b7280' }}>Verwendungszweck: Verwendungszweck: Bitte manuell überweisen, siehe E-Mail Adresse>
               </div>
             )}
           </div>
