@@ -49,19 +49,16 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
 
-  // Neuer Artikel
   const [showForm, setShowForm] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [newArticle, setNewArticle] = useState({ title: '', description: '', price: '', stock: '1' })
 
-  // Artikel bearbeiten
   const [editingArticle, setEditingArticle] = useState<Article | null>(null)
   const [editForm, setEditForm] = useState({ title: '', description: '', price: '', stock: '' })
   const [editImageFile, setEditImageFile] = useState<File | null>(null)
   const [editImagePreview, setEditImagePreview] = useState<string>('')
 
-  // Einstellungen
   const [settings, setSettings] = useState<Settings>(initialSettings || {
     paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: ''
   })
@@ -167,9 +164,18 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
 
   async function handleOrderStatus(id: string, status: string) {
     try {
-      const res = await fetch(`/api/admin/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-      if (res.ok) { setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o)); flash('✅ Status aktualisiert!') }
-    } catch { flash('❌ Fehler') }
+      const res = await fetch(`/api/order/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      if (res.ok) {
+        setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+        flash('✅ Status aktualisiert!')
+      } else {
+        flash('❌ Fehler beim Aktualisieren')
+      }
+    } catch { flash('❌ Verbindungsfehler') }
   }
 
   async function handleDeleteOrder(id: string) {
@@ -197,7 +203,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     <div style={{ fontFamily: "'Inter', sans-serif", minHeight: '100vh', background: '#f8f7ff', padding: '2rem 1rem' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e1b4b', margin: 0 }}>⚙️ Admin Dashboard</h1>
@@ -208,14 +213,12 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           </form>
         </div>
 
-        {/* Flash */}
         {msg && (
           <div style={{ padding: '0.875rem 1.25rem', borderRadius: '12px', marginBottom: '1.5rem', background: msg.startsWith('✅') ? '#ecfdf5' : '#fef2f2', color: msg.startsWith('✅') ? '#059669' : '#dc2626', fontWeight: 600, border: `1px solid ${msg.startsWith('✅') ? '#a7f3d0' : '#fecaca'}` }}>
             {msg}
           </div>
         )}
 
-        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
           {[
             { label: 'Artikel online', value: articles.length, icon: '🏷️', color: '#7c3aed' },
@@ -231,7 +234,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           ))}
         </div>
 
-        {/* Tabs */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: 'fit-content' }}>
           {([['articles', '🏷️ Artikel'], ['orders', '📦 Bestellungen'], ['settings', '⚙️ Einstellungen']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{ padding: '0.5rem 1.25rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280', transition: 'all 0.2s' }}>
@@ -250,7 +252,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               </button>
             </div>
 
-            {/* Neuer Artikel */}
             {showForm && (
               <div style={formCardStyle}>
                 <h3 style={{ margin: '0 0 1.25rem', color: '#1e1b4b', fontWeight: 700 }}>Neuen Artikel anlegen</h3>
@@ -275,7 +276,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               </div>
             )}
 
-            {/* Artikel Liste */}
             {articles.length === 0 ? (
               <div style={{ background: 'white', borderRadius: '16px', padding: '3rem', textAlign: 'center', color: '#6b7280', border: '1px dashed #e9d5ff' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
@@ -285,7 +285,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               <div style={{ display: 'grid', gap: '1rem' }}>
                 {articles.map(article => (
                   <div key={article.id}>
-                    {/* Artikel Karte */}
                     <div style={{ background: 'white', borderRadius: editingArticle?.id === article.id ? '16px 16px 0 0' : '16px', padding: '1.25rem', border: '1px solid #f3e8ff', borderBottom: editingArticle?.id === article.id ? 'none' : '1px solid #f3e8ff', display: 'flex', gap: '1rem', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                       {article.imageUrl
                         ? <img src={article.imageUrl} alt={article.title} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0, border: '1px solid #f3e8ff' }} />
@@ -310,7 +309,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                       </div>
                     </div>
 
-                    {/* Bearbeiten Formular */}
                     {editingArticle?.id === article.id && (
                       <div style={{ background: '#faf5ff', borderRadius: '0 0 16px 16px', padding: '1.5rem', border: '1px solid #e9d5ff', borderTop: '1px dashed #d8b4fe' }}>
                         <h3 style={{ margin: '0 0 1.25rem', color: '#7c3aed', fontWeight: 700, fontSize: '1rem' }}>✏️ Artikel bearbeiten</h3>
@@ -380,17 +378,21 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ padding: '0.375rem 0.875rem', borderRadius: '999px', fontSize: '0.8125rem', fontWeight: 700, background: statusColors[order.status] + '20', color: statusColors[order.status] }}>
+                        <span style={{ padding: '0.375rem 0.875rem', borderRadius: '999px', fontSize: '0.8125rem', fontWeight: 700, background: (statusColors[order.status] || '#6b7280') + '20', color: statusColors[order.status] || '#6b7280' }}>
                           {statusLabels[order.status] || order.status}
                         </span>
-                        <select value={order.status} onChange={e => handleOrderStatus(order.id, e.target.value)} style={{ padding: '0.375rem 0.75rem', borderRadius: '8px', border: '1.5px solid #e9d5ff', fontSize: '0.8125rem', color: '#374151', background: 'white', cursor: 'pointer' }}>
-                          <option value="PENDING">Ausstehend</option>
-                          <option value="PAID">Bezahlt</option>
-                          <option value="SHIPPED">Versendet</option>
-                          <option value="COMPLETED">Abgeschlossen</option>
-                          <option value="CANCELLED">Storniert</option>
+                        <select
+                          value={order.status}
+                          onChange={e => handleOrderStatus(order.id, e.target.value)}
+                          style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1.5px solid #e9d5ff', fontSize: '0.875rem', color: '#374151', background: 'white', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          <option value="PENDING">⏳ Ausstehend</option>
+                          <option value="PAID">✅ Bezahlt</option>
+                          <option value="SHIPPED">🚚 Versendet</option>
+                          <option value="COMPLETED">🏁 Abgeschlossen</option>
+                          <option value="CANCELLED">❌ Storniert</option>
                         </select>
-                        <button onClick={() => handleDeleteOrder(order.id)} style={{ marginLeft: 'auto', padding: '0.375rem 0.875rem', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8125rem' }}>🗑️ Löschen</button>
+                        <button onClick={() => handleDeleteOrder(order.id)} style={{ marginLeft: 'auto', padding: '0.5rem 1rem', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8125rem' }}>🗑️ Löschen</button>
                       </div>
                     </div>
                   )
