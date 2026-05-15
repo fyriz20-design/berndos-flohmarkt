@@ -1,27 +1,28 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-// Wir exportieren eine Funktion namens DELETE. 
-// Das ist die "Sprache", die wir für Löschvorgänge im Web nutzen.
-export async function DELETE(
-  request: Request,
-  context: { params: Promise<{ id: string }> } 
-) {
+
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Hier warten wir auf die ID aus der URL
-    const { id } = await context.params; 
-    const orderId = id;
-
-    // Prisma löscht die Bestellung mit dieser ID
-    await prisma.order.delete({
-      where: {
-        id: orderId
-      },
+    const { id } = await params;
+    const body = await request.json();
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status: body.status },
     });
-
-    return NextResponse.json({ message: 'Bestellung erfolgreich gelöscht' }, { status: 200 });
-
+    return NextResponse.json(updated);
   } catch (error) {
-    console.error("Löschfehler:", error);
-    return NextResponse.json({ error: 'Fehler beim Löschen der Bestellung' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler beim Bearbeiten' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    await prisma.order.delete({
+      where: { id },
+    });
+    return NextResponse.json({ message: 'Bestellung gelöscht' });
+  } catch (error) {
+    return NextResponse.json({ error: 'Fehler beim Löschen' }, { status: 500 });
   }
 }
