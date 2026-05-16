@@ -65,7 +65,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
 
   // Settings direkt von API laden
   useEffect(() => {
-    fetch('/api/settings')
+    fetch('https://www.berndos-flohmarkt.de/api/settings'
       .then(r => r.json())
       .then(data => {
         if (data && !data.error) {
