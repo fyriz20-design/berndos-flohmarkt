@@ -50,8 +50,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
       let imageUrl = null
       if (imageFile) {
         const fd = new FormData(); fd.append('file', imageFile)
-        const u = await fetch('/api/upload', { method: 'POST', body: fd })
-        imageUrl = (await u.json()).imageUrl
+        imageUrl = (await (await fetch('/api/upload', { method: 'POST', body: fd })).json()).imageUrl
       }
       const res = await fetch('/api/articles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...newArticle, price: parseFloat(newArticle.price), stock: parseInt(newArticle.stock), imageUrl }) })
       if (res.ok) { const c = await res.json(); setArticles(p => [c, ...p]); setNewArticle({ title: '', description: '', price: '', stock: '1' }); setImageFile(null); setImagePreview(''); setShowForm(false); flash('✅ Artikel erstellt!') }
@@ -113,21 +112,24 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#f8f7ff', padding: '1rem' }}>
       <style>{`
-        .article-row { display: flex; gap: 1rem; align-items: center; }
-        .article-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
-        @media (max-width: 600px) {
-          .article-row { flex-wrap: wrap; }
-          .article-img { width: 60px !important; height: 60px !important; }
-          .article-actions { width: 100%; justify-content: flex-end; border-top: 1px solid #f3e8ff; padding-top: 0.75rem; margin-top: 0.5rem; }
-          .tab-btn { padding: 0.4rem 0.75rem !important; font-size: 0.75rem !important; }
-          .stats-grid { grid-template-columns: 1fr 1fr !important; }
-          .settings-grid { grid-template-columns: 1fr !important; }
+        .art-card { background: white; padding: 1rem; border: 1px solid #f3e8ff; }
+        .art-inner { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .art-img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+        .art-placeholder { width: 72px; height: 72px; border-radius: 10px; background: #f5f0ff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .art-info { flex: 1; min-width: 150px; }
+        .art-btns { display: flex; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
+        .art-btns button { flex: 1; min-height: 44px; font-size: 0.9375rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-edit { background: #ede9fe; color: #7c3aed; }
+        .btn-del { background: #fee2e2; color: #ef4444; }
+        @media (min-width: 640px) {
+          .art-inner { flex-wrap: nowrap; }
+          .art-btns { width: auto; margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0; }
+          .art-btns button { flex: none; padding: 0.5rem 0.875rem; font-size: 0.8125rem; min-height: auto; }
         }
       `}</style>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontWeight: 800, color: '#1e1b4b', margin: 0 }}>⚙️ Admin Dashboard</h1>
@@ -140,36 +142,33 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
 
         {msg && <div style={{ padding: '0.875rem', borderRadius: '12px', marginBottom: '1rem', background: msg.startsWith('✅') ? '#ecfdf5' : '#fef2f2', color: msg.startsWith('✅') ? '#059669' : '#dc2626', fontWeight: 600 }}>{msg}</div>}
 
-        {/* Stats */}
-        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {[
             { label: 'Artikel', value: articles.length, color: '#7c3aed' },
             { label: 'Bestellungen', value: orders.length, color: '#ec4899' },
             { label: 'Umsatz', value: totalRevenue.toFixed(2) + ' €', color: '#10b981' },
             { label: 'Ausstehend', value: orders.filter(o => o.status === 'PENDING').length, color: '#f59e0b' },
           ].map(s => (
-            <div key={s.label} style={{ background: 'white', borderRadius: '14px', padding: '1rem 1.25rem', border: '1px solid #f3e8ff' }}>
+            <div key={s.label} style={{ background: 'white', borderRadius: '14px', padding: '1rem', border: '1px solid #f3e8ff' }}>
               <div style={{ fontSize: '1.375rem', fontWeight: 800, color: s.color }}>{s.value}</div>
               <div style={{ fontSize: '0.8125rem', color: '#6b7280' }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: 'fit-content', maxWidth: '100%' }}>
           {(['articles', 'orders', 'settings'] as Tab[]).map(key => (
-            <button key={key} className="tab-btn" onClick={() => setTab(key)} style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280' }}>
+            <button key={key} onClick={() => setTab(key)} style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.8125rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280', whiteSpace: 'nowrap' }}>
               {key === 'articles' ? '🏷️ Artikel' : key === 'orders' ? '📦 Bestellungen' : '⚙️ Einstellungen'}
             </button>
           ))}
         </div>
 
-        {/* ARTIKEL TAB */}
         {tab === 'articles' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h2 style={{ margin: 0, fontWeight: 700, color: '#1e1b4b', fontSize: 'clamp(1.125rem, 3vw, 1.375rem)' }}>Meine Artikel</h2>
-              <button onClick={() => { setShowForm(!showForm); setEditingArticle(null) }} style={{ padding: '0.625rem 1.125rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', border: 'none', borderRadius: '999px', fontWeight: 700, cursor: 'pointer', fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+              <button onClick={() => { setShowForm(!showForm); setEditingArticle(null) }} style={{ padding: '0.625rem 1rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', border: 'none', borderRadius: '999px', fontWeight: 700, cursor: 'pointer', fontSize: '0.875rem' }}>
                 {showForm ? '✕ Abbrechen' : '+ Neuer Artikel'}
               </button>
             </div>
@@ -177,19 +176,21 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
             {showForm && (
               <div style={{ background: 'white', borderRadius: '18px', padding: '1.5rem', marginBottom: '1.25rem', border: '1px solid #e9d5ff' }}>
                 <h3 style={{ margin: '0 0 1rem', color: '#1e1b4b', fontWeight: 700 }}>Neuen Artikel anlegen</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-                  <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Titel *</label><input style={inp} placeholder="PlayStation Controller" value={newArticle.title} onChange={e => setNewArticle({ ...newArticle, title: e.target.value })} /></div>
-                  <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Beschreibung</label><textarea style={{ ...inp, minHeight: '80px', resize: 'vertical' } as React.CSSProperties} value={newArticle.description} onChange={e => setNewArticle({ ...newArticle, description: e.target.value })} /></div>
-                  <div><label style={lbl}>Preis (€) *</label><input style={inp} type="number" step="0.01" value={newArticle.price} onChange={e => setNewArticle({ ...newArticle, price: e.target.value })} /></div>
-                  <div><label style={lbl}>Anzahl</label><input style={inp} type="number" min="1" value={newArticle.stock} onChange={e => setNewArticle({ ...newArticle, stock: e.target.value })} /></div>
-                  <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                  <div><label style={lbl}>Titel *</label><input style={inp} placeholder="z.B. PlayStation Controller" value={newArticle.title} onChange={e => setNewArticle({ ...newArticle, title: e.target.value })} /></div>
+                  <div><label style={lbl}>Beschreibung</label><textarea style={{ ...inp, minHeight: '80px', resize: 'vertical' } as React.CSSProperties} value={newArticle.description} onChange={e => setNewArticle({ ...newArticle, description: e.target.value })} /></div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+                    <div><label style={lbl}>Preis (€) *</label><input style={inp} type="number" step="0.01" value={newArticle.price} onChange={e => setNewArticle({ ...newArticle, price: e.target.value })} /></div>
+                    <div><label style={lbl}>Anzahl</label><input style={inp} type="number" min="1" value={newArticle.stock} onChange={e => setNewArticle({ ...newArticle, stock: e.target.value })} /></div>
+                  </div>
+                  <div>
                     <label style={lbl}>Bild</label>
                     <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} id="imgUp" />
                     <label htmlFor="imgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Bild wählen</label>
                     {imagePreview && <img src={imagePreview} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '10px', marginLeft: '0.75rem', verticalAlign: 'middle' }} />}
                   </div>
                 </div>
-                <button onClick={handleCreateArticle} disabled={loading} style={{ ...saveBtn, marginTop: '1rem', opacity: loading ? 0.7 : 1 }}>{loading ? 'Speichern...' : '✓ Speichern'}</button>
+                <button onClick={handleCreateArticle} disabled={loading} style={{ ...saveBtn, marginTop: '1rem', opacity: loading ? 0.7 : 1, width: '100%' }}>{loading ? 'Speichern...' : '✓ Artikel speichern'}</button>
               </div>
             )}
 
@@ -202,44 +203,48 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               <div style={{ display: 'grid', gap: '0.875rem' }}>
                 {articles.map(article => (
                   <div key={article.id}>
-                    <div className="article-row" style={{ background: 'white', borderRadius: editingArticle?.id === article.id ? '16px 16px 0 0' : '16px', padding: '1rem', border: '1px solid #f3e8ff', borderBottom: editingArticle?.id === article.id ? 'none' : undefined }}>
-                      {article.imageUrl
-                        ? <img className="article-img" src={article.imageUrl} alt={article.title} style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0 }} />
-                        : <div className="article-img" style={{ width: '72px', height: '72px', borderRadius: '10px', background: '#f5f0ff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>📷</div>
-                      }
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, color: '#1e1b4b', fontSize: '0.9375rem', marginBottom: '0.25rem' }}>{article.title}</div>
-                        <div style={{ color: '#6b7280', fontSize: '0.8125rem', marginBottom: '0.375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{article.description}</div>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.2rem 0.625rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.8125rem' }}>{article.price.toFixed(2)} €</span>
-                          <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>Lager: {article.stock}</span>
+                    <div className="art-card" style={{ borderRadius: editingArticle?.id === article.id ? '16px 16px 0 0' : '16px', borderBottom: editingArticle?.id === article.id ? 'none' : undefined }}>
+                      <div className="art-inner">
+                        {article.imageUrl
+                          ? <img className="art-img" src={article.imageUrl} alt={article.title} />
+                          : <div className="art-placeholder">📷</div>
+                        }
+                        <div className="art-info">
+                          <div style={{ fontWeight: 700, color: '#1e1b4b', fontSize: '0.9375rem', marginBottom: '0.2rem' }}>{article.title}</div>
+                          <div style={{ color: '#6b7280', fontSize: '0.8125rem', marginBottom: '0.375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{article.description}</div>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.2rem 0.625rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.8125rem' }}>{article.price.toFixed(2)} €</span>
+                            <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>Lager: {article.stock}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="article-actions">
-                        <button onClick={() => editingArticle?.id === article.id ? setEditingArticle(null) : (setEditingArticle(article), setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }), setEditImagePreview(article.imageUrl || ''))} style={{ padding: '0.5rem 0.875rem', background: '#ede9fe', color: '#7c3aed', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
-                          ✏️ Bearbeiten
-                        </button>
-                        <button onClick={() => handleDeleteArticle(article.id)} disabled={loading} style={{ padding: '0.5rem 0.875rem', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
-                          🗑️ Löschen
-                        </button>
+                        <div className="art-btns">
+                          <button className="btn-edit" onClick={() => editingArticle?.id === article.id ? setEditingArticle(null) : (setEditingArticle(article), setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }), setEditImagePreview(article.imageUrl || ''))}>
+                            ✏️ Bearbeiten
+                          </button>
+                          <button className="btn-del" onClick={() => handleDeleteArticle(article.id)} disabled={loading}>
+                            🗑️ Löschen
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     {editingArticle?.id === article.id && (
                       <div style={{ background: '#faf5ff', borderRadius: '0 0 16px 16px', padding: '1.25rem', border: '1px solid #e9d5ff', borderTop: '1px dashed #d8b4fe' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-                          <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Titel *</label><input style={inp} value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} /></div>
-                          <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Beschreibung</label><textarea style={{ ...inp, minHeight: '80px', resize: 'vertical' } as React.CSSProperties} value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} /></div>
-                          <div><label style={lbl}>Preis (€)</label><input style={inp} type="number" step="0.01" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: e.target.value })} /></div>
-                          <div><label style={lbl}>Anzahl</label><input style={inp} type="number" value={editForm.stock} onChange={e => setEditForm({ ...editForm, stock: e.target.value })} /></div>
-                          <div style={{ gridColumn: '1 / -1' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                          <div><label style={lbl}>Titel *</label><input style={inp} value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} /></div>
+                          <div><label style={lbl}>Beschreibung</label><textarea style={{ ...inp, minHeight: '80px', resize: 'vertical' } as React.CSSProperties} value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} /></div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+                            <div><label style={lbl}>Preis (€)</label><input style={inp} type="number" step="0.01" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: e.target.value })} /></div>
+                            <div><label style={lbl}>Anzahl</label><input style={inp} type="number" value={editForm.stock} onChange={e => setEditForm({ ...editForm, stock: e.target.value })} /></div>
+                          </div>
+                          <div>
                             <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setEditImageFile(f); setEditImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} id="editImgUp" />
                             <label htmlFor="editImgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Neues Bild</label>
                             {editImagePreview && <img src={editImagePreview} alt="" style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '10px', marginLeft: '0.75rem', verticalAlign: 'middle' }} />}
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                          <button onClick={handleUpdateArticle} disabled={loading} style={{ ...saveBtn, opacity: loading ? 0.7 : 1 }}>{loading ? 'Speichern...' : '💾 Speichern'}</button>
+                          <button onClick={handleUpdateArticle} disabled={loading} style={{ ...saveBtn, opacity: loading ? 0.7 : 1, flex: 1 }}>{loading ? 'Speichern...' : '💾 Speichern'}</button>
                           <button onClick={() => setEditingArticle(null)} style={{ padding: '0.75rem 1.25rem', background: '#f3f4f6', color: '#6b7280', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Abbrechen</button>
                         </div>
                       </div>
@@ -251,7 +256,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           </div>
         )}
 
-        {/* BESTELLUNGEN TAB */}
         {tab === 'orders' && (
           <div>
             <h2 style={{ margin: '0 0 1rem', fontWeight: 700, color: '#1e1b4b' }}>Bestellungen ({orders.length})</h2>
@@ -295,7 +299,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                           <option value="COMPLETED">🏁 Abgeschlossen</option>
                           <option value="CANCELLED">❌ Storniert</option>
                         </select>
-                        <button onClick={() => handleDeleteOrder(order.id)} style={{ padding: '0.4rem 0.875rem', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8125rem' }}>🗑️</button>
+                        <button onClick={() => handleDeleteOrder(order.id)} style={{ padding: '0.5rem 0.875rem', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>🗑️ Löschen</button>
                       </div>
                     </div>
                   )
@@ -305,16 +309,15 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           </div>
         )}
 
-        {/* EINSTELLUNGEN TAB */}
         {tab === 'settings' && (
           <div style={{ background: 'white', borderRadius: '20px', padding: '1.75rem', border: '1px solid #e9d5ff' }}>
             <h2 style={{ margin: '0 0 1.5rem', fontWeight: 700, color: '#1e1b4b' }}>Zahlungsdaten</h2>
             <h3 style={{ color: '#7c3aed', fontWeight: 700, marginBottom: '1rem', fontSize: '1rem' }}>🏦 Bankdaten</h3>
-            <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-              <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Kontoinhaber</label><input style={inp} value={settings.bankHolder} onChange={e => setSettings({ ...settings, bankHolder: e.target.value })} /></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+              <div><label style={lbl}>Kontoinhaber</label><input style={inp} value={settings.bankHolder} onChange={e => setSettings({ ...settings, bankHolder: e.target.value })} /></div>
               <div><label style={lbl}>IBAN</label><input style={inp} value={settings.bankIban} onChange={e => setSettings({ ...settings, bankIban: e.target.value })} /></div>
               <div><label style={lbl}>BIC</label><input style={inp} value={settings.bankBic} onChange={e => setSettings({ ...settings, bankBic: e.target.value })} /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>Bankname</label><input style={inp} value={settings.bankName} onChange={e => setSettings({ ...settings, bankName: e.target.value })} /></div>
+              <div><label style={lbl}>Bankname</label><input style={inp} value={settings.bankName} onChange={e => setSettings({ ...settings, bankName: e.target.value })} /></div>
             </div>
             <h3 style={{ color: '#0070ba', fontWeight: 700, marginBottom: '1rem', fontSize: '1rem' }}>💙 PayPal</h3>
             <div style={{ marginBottom: '2rem' }}>
