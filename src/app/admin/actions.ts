@@ -12,7 +12,7 @@ export async function logoutAction() {
 export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string
 
-  if (password === 'berndoes123') {
+  if (password === 'berndos123') {
     const cookieStore = await cookies()
     cookieStore.set('admin_session', 'true', {
       httpOnly: true,
