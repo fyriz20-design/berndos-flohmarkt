@@ -118,6 +118,14 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         .art-placeholder { width: 72px; height: 72px; border-radius: 10px; background: #f5f0ff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .art-info { flex: 1; min-width: 150px; }
         .art-btns { display: flex; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
+.art-btns button { flex: 1; min-height: 48px; font-size: 0.875rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; padding: 0.5rem 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-edit { background: #ede9fe; color: #7c3aed; }
+.btn-del { background: #fee2e2; color: #ef4444; }
+@media (min-width: 640px) {
+  .art-inner { flex-wrap: nowrap; }
+  .art-btns { width: auto; margin-top: 0; padding-top: 0; border-top: none; }
+  .art-btns button { flex: none; padding: 0.5rem 0.875rem; min-height: auto; }
+}
         .art-btns button { flex: 1; min-height: 44px; font-size: 0.9375rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
         .btn-edit { background: #ede9fe; color: #7c3aed; }
        .btn-del { background: #fee2e2; color: #ef4444; }
