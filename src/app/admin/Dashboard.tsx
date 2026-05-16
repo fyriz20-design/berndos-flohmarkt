@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { logoutAction } from './actions'
 
 type Article = {
@@ -59,9 +59,27 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [editImageFile, setEditImageFile] = useState<File | null>(null)
   const [editImagePreview, setEditImagePreview] = useState<string>('')
 
-  const [settings, setSettings] = useState<Settings>(initialSettings || {
+  const [settings, setSettings] = useState<Settings>({
     paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: ''
   })
+
+  // Settings direkt von API laden
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.json())
+      .then(data => {
+        if (data && !data.error) {
+          setSettings({
+            paypalClientId: data.paypalClientId || '',
+            bankIban: data.bankIban || '',
+            bankBic: data.bankBic || '',
+            bankHolder: data.bankHolder || '',
+            bankName: data.bankName || '',
+          })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   function flash(text: string) {
     setMsg(text)
@@ -192,9 +210,22 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       })
-      if (res.ok) { flash('✅ Einstellungen gespeichert!') }
-      else { flash('❌ Fehler beim Speichern') }
-    } catch { flash('❌ Verbindungsfehler') }
+      const data = await res.json()
+      if (res.ok) {
+        setSettings({
+          paypalClientId: data.paypalClientId || '',
+          bankIban: data.bankIban || '',
+          bankBic: data.bankBic || '',
+          bankHolder: data.bankHolder || '',
+          bankName: data.bankName || '',
+        })
+        flash('✅ Einstellungen gespeichert!')
+      } else {
+        flash('❌ Fehler: ' + (data.error || 'Unbekannt'))
+      }
+    } catch (e) {
+      flash('❌ Verbindungsfehler: ' + String(e))
+    }
     setLoading(false)
   }
 
@@ -418,7 +449,9 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
               <input style={inputStyle} placeholder="deine@email.de" value={settings.paypalClientId} onChange={e => setSettings({ ...settings, paypalClientId: e.target.value })} />
               <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginTop: '0.5rem' }}>Diese E-Mail wird dem Kunden als Zahlungsziel angezeigt.</p>
             </div>
-            <button onClick={handleSaveSettings} disabled={loading} style={{ ...saveBtnStyle, opacity: loading ? 0.7 : 1 }}>{loading ? 'Wird gespeichert...' : '💾 Einstellungen speichern'}</button>
+            <button onClick={handleSaveSettings} disabled={loading} style={{ ...saveBtnStyle, opacity: loading ? 0.7 : 1 }}>
+              {loading ? 'Wird gespeichert...' : '💾 Einstellungen speichern'}
+            </button>
           </div>
         )}
       </div>
