@@ -61,7 +61,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   })
 
   useEffect(function() {
-    fetch('https://www.berndos-flohmarkt.de/api/settings')
+    fetch('/api/settings')
       .then(function(r) { return r.json() })
       .then(function(data) {
         if (data && !data.error) {
