@@ -1,7 +1,5 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -14,7 +12,7 @@ export async function logoutAction() {
 export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string
 
-  if (password === 'berndos123') { 
+  if (password === 'berndoes123') {
     const cookieStore = await cookies()
     cookieStore.set('admin_session', 'true', {
       httpOnly: true,
@@ -22,8 +20,7 @@ export async function loginAction(formData: FormData) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24
     })
-    
-    return { success: true }
+    redirect('/admin')
   }
 
   return { success: false, error: 'Ungültiges Passwort' }
