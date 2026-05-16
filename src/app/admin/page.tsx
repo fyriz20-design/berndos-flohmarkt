@@ -6,7 +6,6 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
-  // Auth prüfen
   const cookieStore = await cookies();
   const session = cookieStore.get('admin_session')?.value;
 
@@ -14,21 +13,18 @@ export default async function AdminPage() {
     return <LoginForm />;
   }
 
-  let articles = [];
-  let orders = [];
+  let articles: any[] = [];
+  let orders: any[] = [];
   let settings = null;
 
   try {
     const prismaAny = prisma as any;
-    articles = await (prismaAny.article?.findMany({
-      orderBy: { createdAt: 'desc' }
-    }) || []);
-    orders = await (prismaAny.order?.findMany({
-      orderBy: { createdAt: 'desc' }
-    }) || []);
-    settings = await prisma.setting.findUnique({ where: { id: 'global' } });
+    articles = await prismaAny.article?.findMany({ orderBy: { createdAt: 'desc' } }) || [];
+    orders = await prismaAny.order?.findMany({ orderBy: { createdAt: 'desc' } }) || [];
+    settings = await prismaAny.setting?.findUnique({ where: { id: 'global' } }) || null;
+    console.log('Admin geladen - Settings:', settings);
   } catch (error) {
-    console.error('Datenbank-Fehler im Admin:', error);
+    console.error('Admin Fehler:', error);
   }
 
   return (
