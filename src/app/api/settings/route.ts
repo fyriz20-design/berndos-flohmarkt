@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const settings = await (prisma as any).setting?.findUnique({
+    const settings = await prisma.setting.findUnique({
       where: { id: 'global' }
     });
     return NextResponse.json(settings || {
@@ -20,8 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Settings POST body:', body);
-    const settings = await (prisma as any).setting?.upsert({
+    const settings = await prisma.setting.upsert({
       where: { id: 'global' },
       update: {
         paypalClientId: body.paypalClientId || '',
@@ -39,10 +38,9 @@ export async function POST(request: Request) {
         bankName: body.bankName || '',
       }
     });
-    console.log('Settings gespeichert:', settings);
-    return NextResponse.json(settings || { success: true });
+    return NextResponse.json(settings);
   } catch (error) {
-    console.error('Settings POST Fehler:', error);
+    console.error('Settings Fehler:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
