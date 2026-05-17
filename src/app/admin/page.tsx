@@ -1,5 +1,4 @@
-﻿@'
-import Dashboard from './Dashboard';
+﻿import Dashboard from './Dashboard';
 import LoginForm from './LoginForm';
 import { cookies } from 'next/headers';
 
@@ -21,4 +20,3 @@ export default async function AdminPage() {
     />
   );
 }
-'@ | Set-Content -Path "src\app\admin\page.tsx" -Encoding UTF8
