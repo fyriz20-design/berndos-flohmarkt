@@ -143,7 +143,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         .art-info { flex: 1; min-width: 150px; }
         .art-btns { display: flex; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
         .btn-edit { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #ede9fe; color: #7c3aed; }
-        .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; }
+        .btn-del { flex: 0 0 48%; max-width: 48%; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; }
         @media (min-width: 640px) {
           .art-inner { flex-wrap: nowrap; }
           .art-btns { width: auto; margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0; }
@@ -348,5 +348,6 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     </div>
   )
 }
+
 
 
