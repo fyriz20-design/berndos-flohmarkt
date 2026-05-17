@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
     const { name, email, message } = body;
 
     if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Bitte fülle alle Felder aus.' }, { status: 400 });
+      return NextResponse.json({ error: 'Bitte fÃ¼lle alle Felder aus.' }, { status: 400 });
     }
 
     const smtpEmail = process.env.SMTP_EMAIL?.trim();
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
         to: adminEmail,
         replyTo: email,
         subject: `Neue Kontaktanfrage von ${name}`,
-        text: `Du hast eine neue Nachricht über das Kontaktformular erhalten.\n\nName: ${name}\nE-Mail: ${email}\n\nNachricht:\n${message}`,
+        text: `Du hast eine neue Nachricht Ã¼ber das Kontaktformular erhalten.\n\nName: ${name}\nE-Mail: ${email}\n\nNachricht:\n${message}`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -48,3 +49,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Fehler beim Senden der Nachricht.' }, { status: 500 });
   }
 }
+
