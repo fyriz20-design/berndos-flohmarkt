@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic'
 import React from 'react';
 
 export const metadata = {
@@ -12,10 +13,10 @@ export default function ImpressumPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', lineHeight: '1.6' }}>
           <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Angaben gemäß § 5 TMG</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Angaben gemÃ¤ÃŸ Â§ 5 TMG</h2>
             <p>
               <strong>Bernd Geske</strong><br />
-              Gottlob-Günther-Str. 4<br />
+              Gottlob-GÃ¼nther-Str. 4<br />
               72250 Freudenstadt
             </p>
           </section>
@@ -31,11 +32,11 @@ export default function ImpressumPage() {
           <section style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#1e293b' }}>Besonderer Hinweis zum Privatverkauf</h2>
             <p style={{ fontSize: '0.9375rem' }}>
-              Dies ist eine private Webseite, die ausschließlich dem Verkauf von gebrauchten Artikeln aus privatem Besitz im Sinne eines Flohmarktes dient. 
+              Dies ist eine private Webseite, die ausschlieÃŸlich dem Verkauf von gebrauchten Artikeln aus privatem Besitz im Sinne eines Flohmarktes dient. 
               <strong> Es handelt sich um keinen gewerblichen Online-Shop.</strong>
             </p>
             <p style={{ fontSize: '0.9375rem', marginTop: '0.5rem' }}>
-              Der Verkauf erfolgt unter Ausschluss jeglicher Gewährleistung, Garantie und Rücknahme. Da es sich um einen Privatverkauf handelt, kann ich keine Garantie nach neuem EU-Recht übernehmen. Der Käufer erklärt sich damit einverstanden und erkennt dies mit seinem Kauf an.
+              Der Verkauf erfolgt unter Ausschluss jeglicher GewÃ¤hrleistung, Garantie und RÃ¼cknahme. Da es sich um einen Privatverkauf handelt, kann ich keine Garantie nach neuem EU-Recht Ã¼bernehmen. Der KÃ¤ufer erklÃ¤rt sich damit einverstanden und erkennt dies mit seinem Kauf an.
             </p>
           </section>
 
@@ -50,3 +51,4 @@ export default function ImpressumPage() {
     </div>
   );
 }
+
