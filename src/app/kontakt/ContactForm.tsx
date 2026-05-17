@@ -21,7 +21,7 @@ export default function ContactForm() {
     } catch { setErrorMessage('Verbindungsfehler.'); setStatus('ERROR') }
   }
 
-  const inp = { width: '100%', padding: '0.875rem 1rem', borderRadius: '10px', border: '1.5px solid #e9d5ff', fontSize: '1rem', fontFamily: 'inherit', color: '#1c1917', outline: 'none', boxSizing: 'border-box', background: '#faf5ff' }
+  const inp = { width: '100%', padding: '0.875rem 1rem', borderRadius: '10px', border: '1.5px solid #e9d5ff', fontSize: '1rem', fontFamily: 'inherit', color: '#1c1917', outline: 'none', boxSizing: 'border-box' as const, background: '#faf5ff' }
   const lbl = { display: 'block', marginBottom: '0.375rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151' }
 
   if (status === 'SUCCESS') return (
@@ -48,4 +48,5 @@ export default function ContactForm() {
     </form>
   )
 }
+
 
