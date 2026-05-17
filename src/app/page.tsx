@@ -1,6 +1,6 @@
 ﻿import ProductList from './ProductList';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = export const dynamic = 'force-dynamic';;
 
 export default async function HomePage() {
   return (
