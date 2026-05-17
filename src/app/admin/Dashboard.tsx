@@ -143,12 +143,12 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         .art-info { flex: 1; min-width: 150px; }
         .art-btns { display: flex; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
         .btn-edit { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #ede9fe; color: #7c3aed; }
-        .btn-del { min-width: 90px; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
+        .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
         @media (min-width: 640px) {
           .art-inner { flex-wrap: nowrap; }
           .art-btns { width: auto; margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0; }
           .btn-edit { flex: none; padding: 0.5rem 0.875rem; min-height: auto; font-size: 0.8125rem; }
-          .btn-del { min-width: 90px; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
+          .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
         }
       `}</style>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -166,7 +166,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           {[
             { label: 'Artikel', value: articles.length, color: '#7c3aed' },
             { label: 'Bestellungen', value: orders.length, color: '#ec4899' },
-            { label: 'Umsatz', value: totalRevenue.toFixed(2) + ' EUR', color: '#10b981' },
+            { label: 'Umsatz', value: totalRevenue.toFixed(2) + ' €', color: '#10b981' },
             { label: 'Ausstehend', value: orders.filter(function(o) { return o.status === 'PENDING' }).length, color: '#f59e0b' },
           ].map(function(s) {
             return (
@@ -202,7 +202,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                   <div><label style={lbl}>Titel *</label><input style={inp} placeholder="PlayStation Controller" value={newArticle.title} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { title: e.target.value })) }} /></div>
                   <div><label style={lbl}>Beschreibung</label><textarea style={Object.assign({}, inp, { minHeight: '80px' }) as React.CSSProperties} value={newArticle.description} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { description: e.target.value })) }} /></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-                    <div><label style={lbl}>Preis (EUR) *</label><input style={inp} type="number" step="0.01" value={newArticle.price} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { price: e.target.value })) }} /></div>
+                    <div><label style={lbl}>Preis (€) *</label><input style={inp} type="number" step="0.01" value={newArticle.price} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { price: e.target.value })) }} /></div>
                     <div><label style={lbl}>Anzahl</label><input style={inp} type="number" min="1" value={newArticle.stock} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { stock: e.target.value })) }} /></div>
                   </div>
                   <div>
@@ -248,7 +248,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                             <div><label style={lbl}>Titel *</label><input style={inp} value={editForm.title} onChange={function(e) { setEditForm(Object.assign({}, editForm, { title: e.target.value })) }} /></div>
                             <div><label style={lbl}>Beschreibung</label><textarea style={Object.assign({}, inp, { minHeight: '80px' }) as React.CSSProperties} value={editForm.description} onChange={function(e) { setEditForm(Object.assign({}, editForm, { description: e.target.value })) }} /></div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-                              <div><label style={lbl}>Preis (EUR)</label><input style={inp} type="number" step="0.01" value={editForm.price} onChange={function(e) { setEditForm(Object.assign({}, editForm, { price: e.target.value })) }} /></div>
+                              <div><label style={lbl}>Preis (€)</label><input style={inp} type="number" step="0.01" value={editForm.price} onChange={function(e) { setEditForm(Object.assign({}, editForm, { price: e.target.value })) }} /></div>
                               <div><label style={lbl}>Anzahl</label><input style={inp} type="number" value={editForm.stock} onChange={function(e) { setEditForm(Object.assign({}, editForm, { stock: e.target.value })) }} /></div>
                             </div>
                             <div>
