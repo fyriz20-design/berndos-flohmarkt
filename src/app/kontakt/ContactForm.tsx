@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 export default function ContactForm() {
   const [status, setStatus] = useState('IDLE')
   const [errorMessage, setErrorMessage] = useState('')
-  const formRef = useRef(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,3 +48,4 @@ export default function ContactForm() {
     </form>
   )
 }
+
