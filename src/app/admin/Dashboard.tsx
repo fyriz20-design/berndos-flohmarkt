@@ -24,6 +24,11 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
 
   useEffect(function() {
+    fetch('/api/articles').then(function(r){return r.json()}).then(function(d){if(Array.isArray(d))setArticles(d)}).catch(console.error)
+    fetch('/api/order').then(function(r){return r.json()}).then(function(d){if(Array.isArray(d))setOrders(d)}).catch(console.error)
+  }, [])
+
+  useEffect(function() {
     fetch('/api/settings')
       .then(function(r) { return r.json() })
       .then(function(data) {
@@ -343,4 +348,5 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     </div>
   )
 }
+
 
