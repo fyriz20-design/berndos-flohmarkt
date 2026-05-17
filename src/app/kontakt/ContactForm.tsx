@@ -6,7 +6,7 @@ export default function ContactForm() {
   const [errorMessage, setErrorMessage] = useState('')
   const formRef = useRef(null)
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setStatus('LOADING')
     const formData = new FormData(e.currentTarget)
