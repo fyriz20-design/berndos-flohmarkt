@@ -136,12 +136,12 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#f8f7ff', padding: '1rem', overflowX: 'hidden' as const }}>
       <style>{`
-        .art-card { background: white; padding: 1rem; border: 1px solid #f3e8ff; overflow: visible; }
+        .art-card { background: white; padding: 1rem; border: 1px solid #f3e8ff; box-sizing: border-box; width: 100%; }
         .art-inner { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; overflow: visible; }
         .art-img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
         .art-placeholder { width: 72px; height: 72px; border-radius: 10px; background: #f5f0ff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .art-info { flex: 1; min-width: 150px; }
-        .art-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
+        .art-btns { display: grid; grid-template-columns: 1fr 1fr; box-sizing: border-box; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
         .btn-edit { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #ede9fe; color: #7c3aed; }
         .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
         @media (min-width: 640px) {
