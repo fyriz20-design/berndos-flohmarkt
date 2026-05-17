@@ -1,49 +1,50 @@
-import ContactForm from './ContactForm';
+﻿'use client'
+import { useState, useRef } from 'react'
 
-export const metadata = {
-  title: 'Kontakt - Berndos Flohmarkt',
-  description: 'Hast du Fragen zu einem Artikel? Schreib mir!',
-};
+export default function ContactForm() {
+  const [status, setStatus] = useState('IDLE')
+  const [errorMessage, setErrorMessage] = useState('')
+  const formRef = useRef(null)
 
-export default function KontaktPage() {
-  return (
-    <div style={{ minHeight: '80vh', background: 'linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #faf5ff 100%)', padding: '3rem 1.25rem' }}>
-      <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setStatus('LOADING')
+    const formData = new FormData(e.currentTarget)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({ name: formData.get('name'), email: formData.get('email'), message: formData.get('message') }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      if (res.ok) { setStatus('SUCCESS'); if (formRef.current) formRef.current.reset() }
+      else { const err = await res.json().catch(() => ({})); setErrorMessage(err.error || 'Fehler'); setStatus('ERROR') }
+    } catch { setErrorMessage('Verbindungsfehler.'); setStatus('ERROR') }
+  }
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '68px', height: '68px', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', borderRadius: '20px', fontSize: '1.875rem', marginBottom: '1.25rem', boxShadow: '0 8px 25px rgba(124,58,237,0.25)' }}>
-            ✉️
-          </div>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.75rem, 5vw, 2.75rem)', fontWeight: 900, color: '#1c1917', letterSpacing: '-0.02em', marginBottom: '0.75rem', margin: '0 0 0.75rem' }}>
-            Schreib mir!
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', lineHeight: 1.7, maxWidth: '460px', margin: '0 auto' }}>
-            Fragen zu einem Artikel? Ich melde mich so schnell wie möglich bei dir.
-          </p>
-        </div>
+  const inp = { width: '100%', padding: '0.875rem 1rem', borderRadius: '10px', border: '1.5px solid #e9d5ff', fontSize: '1rem', fontFamily: 'inherit', color: '#1c1917', outline: 'none', boxSizing: 'border-box', background: '#faf5ff' }
+  const lbl = { display: 'block', marginBottom: '0.375rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151' }
 
-        {/* Info Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.875rem', marginBottom: '2rem' }}>
-          {[
-            { icon: '⚡', title: 'Schnelle Antwort', text: 'In der Regel innerhalb 24h' },
-            { icon: '📦', title: 'Artikelfragen', text: 'Zustand, Details, Fotos' },
-            { icon: '🤝', title: 'Verhandlung', text: 'Preise sind verhandelbar' },
-          ].map(card => (
-            <div key={card.title} style={{ background: 'white', borderRadius: '16px', padding: '1.125rem', border: '1px solid #f3e8ff', boxShadow: '0 2px 8px rgba(124,58,237,0.06)', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.625rem', marginBottom: '0.5rem' }}>{card.icon}</div>
-              <div style={{ fontWeight: 700, color: '#1c1917', fontSize: '0.9rem', marginBottom: '0.25rem' }}>{card.title}</div>
-              <div style={{ color: '#6b7280', fontSize: '0.8rem' }}>{card.text}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Form */}
-        <div style={{ background: 'white', borderRadius: '24px', padding: 'clamp(1.5rem, 4vw, 2.5rem)', border: '1px solid #e9d5ff', boxShadow: '0 8px 40px rgba(124,58,237,0.08)' }}>
-          <ContactForm />
-        </div>
-
-      </div>
+  if (status === 'SUCCESS') return (
+    <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+      <h3 style={{ fontSize: '1.375rem', fontWeight: 800, color: '#1c1917', marginBottom: '0.5rem' }}>Nachricht gesendet!</h3>
+      <p style={{ color: '#6b7280', marginBottom: '1.25rem' }}>Ich melde mich so schnell wie moeglich.</p>
+      <button onClick={() => setStatus('IDLE')} style={{ padding: '0.625rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer' }}>Weitere Nachricht</button>
     </div>
-  );
+  )
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
+      <h2 style={{ margin: '0 0 0.25rem', fontWeight: 800, color: '#1c1917', fontSize: '1.25rem' }}>Kontaktformular</h2>
+      {status === 'ERROR' && <div style={{ padding: '0.875rem', background: '#fef2f2', color: '#dc2626', borderRadius: '10px', border: '1px solid #fecaca' }}>❌ {errorMessage}</div>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <div><label style={lbl}>Dein Name *</label><input type='text' name='name' required disabled={status === 'LOADING'} placeholder='Max Mustermann' style={inp} /></div>
+        <div><label style={lbl}>E-Mail *</label><input type='email' name='email' required disabled={status === 'LOADING'} placeholder='max@email.de' style={inp} /></div>
+      </div>
+      <div><label style={lbl}>Nachricht *</label><textarea name='message' rows={5} required disabled={status === 'LOADING'} placeholder='Ich haette Interesse an...' style={{ ...inp, resize: 'vertical', minHeight: '120px' }} /></div>
+      <button type='submit' disabled={status === 'LOADING'} style={{ padding: '0.875rem', background: status === 'LOADING' ? '#d1d5db' : 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', cursor: status === 'LOADING' ? 'not-allowed' : 'pointer', minHeight: '52px' }}>
+        {status === 'LOADING' ? 'Wird gesendet...' : 'Nachricht senden'}
+      </button>
+    </form>
+  )
 }
