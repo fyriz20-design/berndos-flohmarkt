@@ -1,63 +1,31 @@
 ﻿export const dynamic = 'force-dynamic'
-import React from 'react';
-
-export const metadata = {
-  title: 'DatenschutzerklÃ¤rung - Berndos Flohmarkt',
-};
+export const metadata = { title: 'Datenschutz - Berndos Flohmarkt' }
 
 export default function DatenschutzPage() {
   return (
-    <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: '800px' }}>
-      <div className="card card-content">
-        <h1 style={{ marginBottom: '2rem' }}>DatenschutzerklÃ¤rung</h1>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) 1.25rem', fontFamily: 'DM Sans, sans-serif', color: '#1c1917' }}>
+      <div style={{ background: 'white', borderRadius: '20px', padding: 'clamp(1.5rem, 4vw, 3rem)', boxShadow: '0 4px 20px rgba(120,80,20,0.08)', border: '1px solid #e7e0d5' }}>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: '2rem' }}>Datenschutzerklaerung</h1>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', lineHeight: '1.6' }}>
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>1. Datenschutz auf einen Blick</h2>
-            <p>
-              Die folgenden Hinweise geben einen einfachen Ãœberblick darÃ¼ber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persÃ¶nlich identifiziert werden kÃ¶nnen.
-            </p>
-          </section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>1. Datenschutz auf einen Blick</h2>
+        <p>Die folgenden Hinweise geben einen einfachen Ueberblick darueber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persoenlich identifiziert werden koennen.</p>
 
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>2. Hosting und Datenerfassung</h2>
-            <p>
-              <strong>Hosting durch Vercel</strong><br />
-              Unsere Website wird bei Vercel Inc. gehostet. Bei jedem Besuch dieser Website erfasst Vercel automatisch Informationen, die Ihr Browser Ã¼bermittelt (Server-Log-Files). Dies sind z.B. IP-Adresse, Browsertyp, Referrer-URL und Zeit des Abrufs. Dies erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO zur GewÃ¤hrleistung eines stabilen und sicheren Betriebs.
-            </p>
-          </section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>2. Datenerfassung auf dieser Website</h2>
+        <p>Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten koennen Sie dem Impressum dieser Website entnehmen.</p>
+        <p style={{ marginTop: '0.75rem' }}>Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen, z.B. durch Ausfuellen eines Kontaktformulars oder Aufgeben einer Bestellung.</p>
 
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>3. Datenverarbeitung bei Bestellungen</h2>
-            <p>
-              Wenn Sie in unserem Flohmarkt etwas bestellen, erheben wir folgende Daten: Name, E-Mail-Adresse und Lieferanschrift. Diese Daten werden ausschlieÃŸlich zur Abwicklung Ihrer Bestellung und fÃ¼r die Kommunikation mit Ihnen verwendet (Art. 6 Abs. 1 lit. b DSGVO). Ohne diese Daten kÃ¶nnen wir den Vertrag nicht abschlieÃŸen oder ausfÃ¼hren.
-            </p>
-          </section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>3. Kontaktformular</h2>
+        <p>Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.</p>
 
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>4. Zahlungsanbieter</h2>
-            <p>
-              <strong>PayPal:</strong> Bei Zahlung via PayPal werden Ihre Zahlungsdaten an PayPal (Europe) S.Ã .r.l. et Cie, S.C.A. Ã¼bermittelt. <br />
-              <strong>BankÃ¼berweisung:</strong> Bei der Wahl der BankÃ¼berweisung verarbeiten wir keine Bankdaten von Ihnen, sondern stellen Ihnen lediglich unsere Bankverbindung zur VerfÃ¼gung. Der Zahlungseingang wird von uns manuell geprÃ¼ft.
-            </p>
-          </section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>4. Bestelldaten</h2>
+        <p>Bei einer Bestellung speichern wir Ihren Namen, Ihre E-Mail-Adresse und Lieferadresse zur Abwicklung der Bestellung. Diese Daten werden nach vollstaendiger Abwicklung geloescht.</p>
 
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>5. Kontaktformular</h2>
-            <p>
-              Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und fÃ¼r den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.
-            </p>
-          </section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>5. Ihre Rechte</h2>
+        <p>Sie haben jederzeit das Recht, unentgeltlich Auskunft ueber Herkunft, Empfaenger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben ausserdem ein Recht, die Berichtigung oder Loeschung dieser Daten zu verlangen.</p>
 
-          <section>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>6. Ihre Rechte</h2>
-            <p>
-              Sie haben jederzeit das Recht, unentgeltlich Auskunft Ã¼ber Herkunft, EmpfÃ¤nger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben auÃŸerdem ein Recht, die Berichtigung oder LÃ¶schung dieser Daten zu verlangen. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz kÃ¶nnen Sie sich jederzeit unter der im Impressum angegebenen Adresse an uns wenden.
-            </p>
-          </section>
-        </div>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', marginTop: '1.5rem' }}>6. Kontakt</h2>
+        <p>Bei Fragen zum Datenschutz: geske42@msn.com</p>
       </div>
     </div>
-  );
+  )
 }
-
