@@ -10,6 +10,8 @@ export default function HomePage() {
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setArticles(data) })
       .catch(console.error)
+    // Besuch tracken
+    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: '/' }) }).catch(() => {})
   }, [])
 
   return (

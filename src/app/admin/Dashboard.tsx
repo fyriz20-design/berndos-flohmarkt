@@ -5,7 +5,8 @@ import { logoutAction } from './actions'
 type Article = { id: string; title: string; description: string; price: number; imageUrl: string | null; stock: number; isAvailable: boolean; createdAt: string }
 type Order = { id: string; customerName: string; customerEmail: string; customerAddress: string; subtotal: number; shippingCost: number; totalAmount: number; paymentMethod: string; status: string; createdAt: string; itemsJson: string }
 type Settings = { paypalClientId: string; bankIban: string; bankBic: string; bankHolder: string; bankName: string }
-type Tab = 'articles' | 'orders' | 'settings'
+type Tab = 'articles' | 'orders' | 'settings' | 'analytics'
+type Analytics = { total: number; today: number; week: number; month: number; daily: { date: string; count: number }[] }
 
 export default function Dashboard({ articles: initialArticles, orders: initialOrders }: { articles: Article[]; orders: Order[]; settings: Settings | null }) {
   const [tab, setTab] = useState<Tab>('articles')
@@ -22,10 +23,15 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [editImageFile, setEditImageFile] = useState<File | null>(null)
   const [editImagePreview, setEditImagePreview] = useState('')
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
+  const [analytics, setAnalytics] = useState<Analytics | null>(null)
 
   useEffect(function() {
     fetch('/api/articles').then(function(r){return r.json()}).then(function(d){if(Array.isArray(d))setArticles(d)}).catch(console.error)
     fetch('/api/order').then(function(r){return r.json()}).then(function(d){if(Array.isArray(d))setOrders(d)}).catch(console.error)
+  }, [])
+
+  useEffect(function() {
+    fetch('/api/analytics').then(function(r){return r.json()}).then(function(d){if(!d.error)setAnalytics(d)}).catch(console.error)
   }, [])
 
   useEffect(function() {
@@ -178,10 +184,10 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
           })}
         </div>
         <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: 'fit-content', maxWidth: '100%' }}>
-          {(['articles', 'orders', 'settings'] as Tab[]).map(function(key) {
+          {(['articles', 'orders', 'analytics', 'settings'] as Tab[]).map(function(key) {
             return (
               <button key={key} onClick={function() { setTab(key) }} style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.8125rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280', whiteSpace: 'nowrap' }}>
-                {key === 'articles' ? 'Artikel' : key === 'orders' ? 'Bestellungen' : 'Einstellungen'}
+                {key === 'articles' ? 'Artikel' : key === 'orders' ? 'Bestellungen' : key === 'analytics' ? '👁 Besucher' : 'Einstellungen'}
               </button>
             )
           })}
@@ -319,6 +325,56 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                     </div>
                   )
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'analytics' && (
+          <div>
+            <h2 style={{ margin: '0 0 1rem', fontWeight: 700, color: '#1e1b4b' }}>Besucherstatistik</h2>
+            {!analytics ? (
+              <div style={{ background: 'white', borderRadius: '16px', padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Lade Daten...</div>
+            ) : (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                  {[
+                    { label: 'Gesamt', value: analytics.total, color: '#7c3aed', icon: '👁' },
+                    { label: 'Heute', value: analytics.today, color: '#ec4899', icon: '📅' },
+                    { label: '7 Tage', value: analytics.week, color: '#10b981', icon: '📆' },
+                    { label: '30 Tage', value: analytics.month, color: '#3b82f6', icon: '🗓' },
+                  ].map(function(s) {
+                    return (
+                      <div key={s.label} style={{ background: 'white', borderRadius: '14px', padding: '1rem', border: '1px solid #f3e8ff', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{s.icon}</div>
+                        <div style={{ fontSize: '1.625rem', fontWeight: 800, color: s.color }}>{s.value}</div>
+                        <div style={{ fontSize: '0.8125rem', color: '#6b7280' }}>{s.label}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', border: '1px solid #f3e8ff' }}>
+                  <h3 style={{ margin: '0 0 1rem', fontWeight: 700, color: '#1e1b4b', fontSize: '0.9375rem' }}>Letzte 30 Tage</h3>
+                  {(() => {
+                    const maxVal = Math.max(...analytics.daily.map(function(d) { return d.count }), 1)
+                    const last14 = analytics.daily.slice(-14)
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '120px', overflowX: 'auto' }}>
+                        {last14.map(function(d) {
+                          const h = Math.max((d.count / maxVal) * 100, d.count > 0 ? 6 : 2)
+                          const dateLabel = new Date(d.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+                          return (
+                            <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '28px' }} title={dateLabel + ': ' + d.count + ' Besucher'}>
+                              <div style={{ fontSize: '0.625rem', color: '#9ca3af', fontWeight: 600 }}>{d.count > 0 ? d.count : ''}</div>
+                              <div style={{ width: '100%', height: h + '%', background: 'linear-gradient(180deg, #7c3aed, #a855f7)', borderRadius: '4px 4px 0 0', minHeight: '2px', transition: 'height 0.3s' }} />
+                              <div style={{ fontSize: '0.5625rem', color: '#9ca3af', transform: 'rotate(-40deg)', whiteSpace: 'nowrap', transformOrigin: 'center top' }}>{dateLabel}</div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+                </div>
               </div>
             )}
           </div>
