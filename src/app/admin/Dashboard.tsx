@@ -24,6 +24,13 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [editImagePreview, setEditImagePreview] = useState('')
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
+  const [isMobile, setIsMobile] = useState(true)
+  useEffect(function() {
+    function check() { setIsMobile(window.innerWidth < 640) }
+    check()
+    window.addEventListener('resize', check)
+    return function() { window.removeEventListener('resize', check) }
+  }, [])
 
   useEffect(function() {
     fetch('/api/articles').then(function(r){return r.json()}).then(function(d){if(Array.isArray(d))setArticles(d)}).catch(console.error)
@@ -191,10 +198,10 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
             )
           })}
         </div>
-        <div className="tab-bar">
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, auto)', gap: '0.375rem', marginBottom: '1.25rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: isMobile ? '100%' : 'fit-content' }}>
           {(['articles', 'orders', 'analytics', 'settings'] as Tab[]).map(function(key) {
             return (
-              <button key={key} className="tab-btn" onClick={function() { setTab(key) }} style={{ background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280' }}>
+              <button key={key} onClick={function() { setTab(key) }} style={{ padding: '0.625rem 0.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: isMobile ? '0.8125rem' : '0.8125rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280', whiteSpace: 'nowrap', textAlign: 'center' as const }}>
                 {key === 'articles' ? 'Artikel' : key === 'orders' ? 'Bestellungen' : key === 'analytics' ? '👁 Besucher' : 'Einstellungen'}
               </button>
             )
@@ -239,20 +246,22 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                 {articles.map(function(article) {
                   return (
                     <div key={article.id}>
-                      <div className="art-card" style={{ borderRadius: editingArticle && editingArticle.id === article.id ? '16px 16px 0 0' : '16px', borderBottom: editingArticle && editingArticle.id === article.id ? 'none' : undefined }}>
-                        <div className="art-inner">
-                          {article.imageUrl ? <img className="art-img" src={article.imageUrl} alt={article.title} /> : <div className="art-placeholder">📷</div>}
-                          <div className="art-info">
-                            <div className="art-info-title">{article.title}</div>
-                            <div className="art-info-desc">{article.description}</div>
+                      <div style={{ background: 'white', padding: '1rem', border: '1px solid #f3e8ff', boxSizing: 'border-box' as const, width: '100%', overflow: 'hidden', borderRadius: editingArticle && editingArticle.id === article.id ? '16px 16px 0 0' : '16px', borderBottom: editingArticle && editingArticle.id === article.id ? 'none' : undefined }}>
+                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: isMobile ? 'wrap' : 'nowrap' as const }}>
+                          {article.imageUrl
+                            ? <img src={article.imageUrl} alt={article.title} style={{ width: '64px', height: '64px', objectFit: 'cover' as const, borderRadius: '10px', flexShrink: 0 }} />
+                            : <div style={{ width: '64px', height: '64px', borderRadius: '10px', background: '#f5f0ff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>📷</div>}
+                          <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                            <div style={{ fontWeight: 700, color: '#1e1b4b', fontSize: '0.9375rem', marginBottom: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{article.title}</div>
+                            <div style={{ color: '#6b7280', fontSize: '0.8125rem', marginBottom: '0.375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{article.description}</div>
                             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                               <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.2rem 0.625rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>{article.price.toFixed(2)} EUR</span>
                               <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Lager: {article.stock}</span>
                             </div>
                           </div>
-                          <div className="art-btns">
-                            <button className="btn-edit" onClick={function() { if (editingArticle && editingArticle.id === article.id) { setEditingArticle(null) } else { setEditingArticle(article); setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }); setEditImagePreview(article.imageUrl || '') } }}>Bearbeiten</button>
-                            <button className="btn-del" onClick={function() { handleDeleteArticle(article.id) }} disabled={loading}>Löschen</button>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', width: '100%', marginTop: isMobile ? '0.75rem' : 0, paddingTop: isMobile ? '0.75rem' : 0, borderTop: isMobile ? '1px solid #f3e8ff' : 'none', flexShrink: 0 }}>
+                            <button style={{ minHeight: '44px', fontSize: '0.875rem', fontWeight: 700, border: 'none', borderRadius: '10px', cursor: 'pointer', background: '#ede9fe', color: '#7c3aed', padding: '0.5rem' }} onClick={function() { if (editingArticle && editingArticle.id === article.id) { setEditingArticle(null) } else { setEditingArticle(article); setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }); setEditImagePreview(article.imageUrl || '') } }}>Bearbeiten</button>
+                            <button style={{ minHeight: '44px', fontSize: '0.875rem', fontWeight: 700, border: 'none', borderRadius: '10px', cursor: 'pointer', background: '#fee2e2', color: '#ef4444', padding: '0.5rem' }} onClick={function() { handleDeleteArticle(article.id) }} disabled={loading}>Löschen</button>
                           </div>
                         </div>
                       </div>
