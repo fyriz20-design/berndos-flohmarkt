@@ -142,19 +142,27 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#f8f7ff', padding: '1rem', overflowX: 'hidden' as const }}>
       <style>{`
-        .art-card { background: white; padding: 1rem; border: 1px solid #f3e8ff; box-sizing: border-box; width: 100%; }
-        .art-inner { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; overflow: visible; }
-        .art-img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
-        .art-placeholder { width: 72px; height: 72px; border-radius: 10px; background: #f5f0ff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .art-info { flex: 1; min-width: 150px; }
+        .art-card { background: white; padding: 1rem; border: 1px solid #f3e8ff; box-sizing: border-box; width: 100%; overflow: hidden; }
+        .art-inner { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .art-img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+        .art-placeholder { width: 64px; height: 64px; border-radius: 10px; background: #f5f0ff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .art-info { flex: 1; min-width: 0; overflow: hidden; }
+        .art-info-title { font-weight: 700; color: #1e1b4b; font-size: 0.9375rem; margin-bottom: 0.2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .art-info-desc { color: #6b7280; font-size: 0.8125rem; margin-bottom: 0.375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .art-btns { display: grid; grid-template-columns: 1fr 1fr; box-sizing: border-box; gap: 0.5rem; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f3e8ff; }
-        .btn-edit { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #ede9fe; color: #7c3aed; }
-        .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
+        .btn-edit { min-height: 44px; font-size: 0.875rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #ede9fe; color: #7c3aed; padding: 0.5rem; }
+        .btn-del { min-height: 44px; font-size: 0.875rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
+        .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.25rem; background: white; padding: 0.375rem; border-radius: 12px; border: 1px solid #f3e8ff; width: 100%; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn { padding: 0.5rem 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
         @media (min-width: 640px) {
           .art-inner { flex-wrap: nowrap; }
+          .art-img { width: 72px; height: 72px; }
+          .art-placeholder { width: 72px; height: 72px; }
           .art-btns { width: auto; margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0; }
-          .btn-edit { flex: none; padding: 0.5rem 0.875rem; min-height: auto; font-size: 0.8125rem; }
-          .btn-del { flex: 1; min-height: 48px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; background: #fee2e2; color: #ef4444; padding: 0.5rem; }
+          .btn-edit { min-height: auto; font-size: 0.8125rem; }
+          .btn-del { min-height: auto; font-size: 0.8125rem; }
+          .tab-btn { font-size: 0.8125rem; padding: 0.5rem 0.75rem; }
         }
       `}</style>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -183,10 +191,10 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
             )
           })}
         </div>
-        <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem', background: 'white', padding: '0.375rem', borderRadius: '12px', border: '1px solid #f3e8ff', width: 'fit-content', maxWidth: '100%' }}>
+        <div className="tab-bar">
           {(['articles', 'orders', 'analytics', 'settings'] as Tab[]).map(function(key) {
             return (
-              <button key={key} onClick={function() { setTab(key) }} style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.8125rem', background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280', whiteSpace: 'nowrap' }}>
+              <button key={key} className="tab-btn" onClick={function() { setTab(key) }} style={{ background: tab === key ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent', color: tab === key ? 'white' : '#6b7280' }}>
                 {key === 'articles' ? 'Artikel' : key === 'orders' ? 'Bestellungen' : key === 'analytics' ? '👁 Besucher' : 'Einstellungen'}
               </button>
             )
@@ -235,16 +243,16 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                         <div className="art-inner">
                           {article.imageUrl ? <img className="art-img" src={article.imageUrl} alt={article.title} /> : <div className="art-placeholder">📷</div>}
                           <div className="art-info">
-                            <div style={{ fontWeight: 700, color: '#1e1b4b', fontSize: '0.9375rem', marginBottom: '0.2rem' }}>{article.title}</div>
-                            <div style={{ color: '#6b7280', fontSize: '0.8125rem', marginBottom: '0.375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{article.description}</div>
+                            <div className="art-info-title">{article.title}</div>
+                            <div className="art-info-desc">{article.description}</div>
                             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                              <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.2rem 0.625rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.8125rem' }}>{article.price.toFixed(2)} EUR</span>
-                              <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>Lager: {article.stock}</span>
+                              <span style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: 'white', padding: '0.2rem 0.625rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>{article.price.toFixed(2)} EUR</span>
+                              <span style={{ background: '#f5f0ff', color: '#7c3aed', padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Lager: {article.stock}</span>
                             </div>
                           </div>
                           <div className="art-btns">
                             <button className="btn-edit" onClick={function() { if (editingArticle && editingArticle.id === article.id) { setEditingArticle(null) } else { setEditingArticle(article); setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }); setEditImagePreview(article.imageUrl || '') } }}>Bearbeiten</button>
-                            <button className="btn-del" onClick={function() { handleDeleteArticle(article.id) }} disabled={loading}>Loeschen</button>
+                            <button className="btn-del" onClick={function() { handleDeleteArticle(article.id) }} disabled={loading}>Löschen</button>
                           </div>
                         </div>
                       </div>
