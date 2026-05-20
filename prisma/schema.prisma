@@ -18,6 +18,7 @@ model Article {
   description String
   price       Float
   imageUrl    String?
+  imagesJson  String   @default("[]")
   stock       Int      @default(1)
   isAvailable Boolean  @default(true)
   createdAt   DateTime @default(now())

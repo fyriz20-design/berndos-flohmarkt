@@ -8,6 +8,7 @@ interface Article {
   description: string;
   price: number;
   imageUrl: string | null;
+  imagesJson?: string;
   stock: number;
   isAvailable: boolean;
   createdAt: any;
@@ -19,6 +20,7 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
   const { addToCart } = useCart()
   const articles = initialArticles as Article[]
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
+  const [modalImageIndex, setModalImageIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [addedId, setAddedId] = useState<string | null>(null)
@@ -129,7 +131,7 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
             >
               {/* Image */}
               <div
-                onClick={() => setSelectedArticle(article)}
+                onClick={() => { setSelectedArticle(article); setModalImageIndex(0) }}
                 style={{ height: 'clamp(180px, 25vw, 240px)', background: 'linear-gradient(135deg, #f5f0ff, #fef9ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}
               >
                 {article.imageUrl ? (
@@ -223,11 +225,34 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
             onClick={e => e.stopPropagation()}
             style={{ background: 'linear-gradient(145deg, #ffffff, #fdfaf5)', borderRadius: 'clamp(20px, 4vw, 32px)', maxWidth: '600px', width: '100%', overflow: 'hidden', boxShadow: '0 30px 80px rgba(28,25,23,0.35)', animation: 'scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1)', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(231,224,213,0.5)' }}
           >
-            {selectedArticle.imageUrl && (
-              <div style={{ height: 'clamp(220px, 40vw, 320px)', overflow: 'hidden' }}>
-                <img src={selectedArticle.imageUrl} alt={selectedArticle.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            )}
+            {(() => {
+              let images: string[] = []
+              try { images = selectedArticle.imagesJson ? JSON.parse(selectedArticle.imagesJson) : [] } catch(e) {}
+              if (!images.length && selectedArticle.imageUrl) images = [selectedArticle.imageUrl]
+              if (!images.length) return null
+              const current = images[modalImageIndex] || images[0]
+              return (
+                <div>
+                  <div style={{ height: 'clamp(220px, 40vw, 320px)', overflow: 'hidden', position: 'relative' }}>
+                    <img src={current} alt={selectedArticle.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.25s ease' }} />
+                    {images.length > 1 && (
+                      <>
+                        <button onClick={e => { e.stopPropagation(); setModalImageIndex(i => (i - 1 + images.length) % images.length) }} style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', backdropFilter: 'blur(4px)' }}>‹</button>
+                        <button onClick={e => { e.stopPropagation(); setModalImageIndex(i => (i + 1) % images.length) }} style={{ position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', backdropFilter: 'blur(4px)' }}>›</button>
+                        <div style={{ position: 'absolute', bottom: '0.625rem', right: '0.75rem', background: 'rgba(0,0,0,0.45)', color: 'white', borderRadius: '999px', padding: '0.2rem 0.625rem', fontSize: '0.75rem', fontWeight: 600 }}>{modalImageIndex + 1} / {images.length}</div>
+                      </>
+                    )}
+                  </div>
+                  {images.length > 1 && (
+                    <div style={{ display: 'flex', gap: '0.375rem', padding: '0.625rem 1rem', background: '#f8f7ff', overflowX: 'auto' }}>
+                      {images.map((url, i) => (
+                        <img key={i} src={url} alt="" onClick={e => { e.stopPropagation(); setModalImageIndex(i) }} style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, cursor: 'pointer', border: i === modalImageIndex ? '2.5px solid #7c3aed' : '2.5px solid transparent', opacity: i === modalImageIndex ? 1 : 0.6, transition: 'all 0.2s' }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
             <div style={{ padding: 'clamp(1.25rem, 4vw, 2rem)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '1rem' }}>
                 <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.375rem, 4vw, 1.75rem)', fontWeight: 700, color: '#1c1917', margin: 0 }}>

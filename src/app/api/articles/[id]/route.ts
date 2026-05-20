@@ -16,6 +16,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const body = await request.json();
+    const imagesArr: string[] = Array.isArray(body.imagesJson) ? body.imagesJson : (body.imagesJson ? JSON.parse(body.imagesJson) : (body.imageUrl ? [body.imageUrl] : []))
     const article = await (prisma as any).article.update({
       where: { id },
       data: {
@@ -23,7 +24,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         description: body.description || '',
         price: parseFloat(body.price),
         stock: parseInt(body.stock),
-        ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
+        imageUrl: imagesArr[0] || body.imageUrl || null,
+        imagesJson: JSON.stringify(imagesArr),
       }
     });
     return NextResponse.json(article);

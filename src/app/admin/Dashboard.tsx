@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { logoutAction } from './actions'
 
-type Article = { id: string; title: string; description: string; price: number; imageUrl: string | null; stock: number; isAvailable: boolean; createdAt: string }
+type Article = { id: string; title: string; description: string; price: number; imageUrl: string | null; imagesJson: string; stock: number; isAvailable: boolean; createdAt: string }
 type Order = { id: string; customerName: string; customerEmail: string; customerAddress: string; subtotal: number; shippingCost: number; totalAmount: number; paymentMethod: string; status: string; createdAt: string; itemsJson: string }
 type Settings = { paypalClientId: string; bankIban: string; bankBic: string; bankHolder: string; bankName: string }
 type Tab = 'articles' | 'orders' | 'settings' | 'analytics'
@@ -15,13 +15,14 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState('')
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [newArticle, setNewArticle] = useState({ title: '', description: '', price: '', stock: '1' })
   const [editingArticle, setEditingArticle] = useState<Article | null>(null)
   const [editForm, setEditForm] = useState({ title: '', description: '', price: '', stock: '' })
-  const [editImageFile, setEditImageFile] = useState<File | null>(null)
-  const [editImagePreview, setEditImagePreview] = useState('')
+  const [editImageFiles, setEditImageFiles] = useState<File[]>([])
+  const [editImagePreviews, setEditImagePreviews] = useState<string[]>([])
+  const [editExistingImages, setEditExistingImages] = useState<string[]>([])
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [isMobile, setIsMobile] = useState(true)
@@ -64,19 +65,20 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     if (!newArticle.title || !newArticle.price) { flash('Titel und Preis angeben!'); return }
     setLoading(true)
     try {
-      let imageUrl = null
-      if (imageFile) {
+      const uploadedUrls: string[] = []
+      for (const file of imageFiles) {
         const fd = new FormData()
-        fd.append('file', imageFile)
-        imageUrl = (await (await fetch('/api/upload', { method: 'POST', body: fd })).json()).imageUrl
+        fd.append('file', file)
+        const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+        if (result.imageUrl) uploadedUrls.push(result.imageUrl)
       }
-      const res = await fetch('/api/articles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newArticle.title, description: newArticle.description, price: parseFloat(newArticle.price), stock: parseInt(newArticle.stock), imageUrl: imageUrl }) })
+      const res = await fetch('/api/articles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newArticle.title, description: newArticle.description, price: parseFloat(newArticle.price), stock: parseInt(newArticle.stock), imageUrl: uploadedUrls[0] || null, imagesJson: JSON.stringify(uploadedUrls) }) })
       if (res.ok) {
         const c = await res.json()
         setArticles(function(p) { return [c, ...p] })
         setNewArticle({ title: '', description: '', price: '', stock: '1' })
-        setImageFile(null)
-        setImagePreview('')
+        setImageFiles([])
+        setImagePreviews([])
         setShowForm(false)
         flash('Artikel erstellt!')
       } else { flash('Fehler beim Erstellen') }
@@ -88,19 +90,22 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     if (!editingArticle || !editForm.title || !editForm.price) { flash('Pflichtfelder ausfuellen'); return }
     setLoading(true)
     try {
-      let imageUrl = editingArticle.imageUrl
-      if (editImageFile) {
+      const newUrls: string[] = []
+      for (const file of editImageFiles) {
         const fd = new FormData()
-        fd.append('file', editImageFile)
-        imageUrl = (await (await fetch('/api/upload', { method: 'POST', body: fd })).json()).imageUrl
+        fd.append('file', file)
+        const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+        if (result.imageUrl) newUrls.push(result.imageUrl)
       }
-      const res = await fetch('/api/articles/' + editingArticle.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: editForm.title, description: editForm.description, price: parseFloat(editForm.price), stock: parseInt(editForm.stock), imageUrl: imageUrl }) })
+      const allUrls = [...editExistingImages, ...newUrls]
+      const res = await fetch('/api/articles/' + editingArticle.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: editForm.title, description: editForm.description, price: parseFloat(editForm.price), stock: parseInt(editForm.stock), imageUrl: allUrls[0] || null, imagesJson: JSON.stringify(allUrls) }) })
       if (res.ok) {
         const u = await res.json()
         setArticles(function(p) { return p.map(function(a) { return a.id === u.id ? u : a }) })
         setEditingArticle(null)
-        setEditImageFile(null)
-        setEditImagePreview('')
+        setEditImageFiles([])
+        setEditImagePreviews([])
+        setEditExistingImages([])
         flash('Artikel aktualisiert!')
       } else { flash('Fehler') }
     } catch(e) { flash('Verbindungsfehler') }
@@ -227,10 +232,21 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                     <div><label style={lbl}>Anzahl</label><input style={inp} type="number" min="1" value={newArticle.stock} onChange={function(e) { setNewArticle(Object.assign({}, newArticle, { stock: e.target.value })) }} /></div>
                   </div>
                   <div>
-                    <label style={lbl}>Bild</label>
-                    <input type="file" accept="image/*" onChange={function(e) { const f = e.target.files && e.target.files[0]; if (f) { setImageFile(f); setImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} id="imgUp" />
-                    <label htmlFor="imgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>Bild waehlen</label>
-                    {imagePreview && <img src={imagePreview} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '10px', marginLeft: '0.75rem', verticalAlign: 'middle' }} />}
+                    <label style={lbl}>Bilder (mehrere möglich)</label>
+                    <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setImageFiles(function(p) { return [...p, ...files] }); setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="imgUp" />
+                    <label htmlFor="imgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Bilder hinzufügen</label>
+                    {imagePreviews.length > 0 && (
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.625rem' }}>
+                        {imagePreviews.map(function(preview, i) {
+                          return (
+                            <div key={i} style={{ position: 'relative' }}>
+                              <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e9d5ff' }} />
+                              <button type="button" onClick={function() { setImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button onClick={handleCreateArticle} disabled={loading} style={Object.assign({}, saveBtn, { marginTop: '1rem', opacity: loading ? 0.7 : 1, width: '100%' })}>{loading ? 'Speichern...' : 'Artikel speichern'}</button>
@@ -260,7 +276,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                             </div>
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', width: '100%', marginTop: isMobile ? '0.75rem' : 0, paddingTop: isMobile ? '0.75rem' : 0, borderTop: isMobile ? '1px solid #f3e8ff' : 'none', flexShrink: 0 }}>
-                            <button style={{ minHeight: '44px', fontSize: '0.875rem', fontWeight: 700, border: 'none', borderRadius: '10px', cursor: 'pointer', background: '#ede9fe', color: '#7c3aed', padding: '0.5rem' }} onClick={function() { if (editingArticle && editingArticle.id === article.id) { setEditingArticle(null) } else { setEditingArticle(article); setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }); setEditImagePreview(article.imageUrl || '') } }}>Bearbeiten</button>
+                            <button style={{ minHeight: '44px', fontSize: '0.875rem', fontWeight: 700, border: 'none', borderRadius: '10px', cursor: 'pointer', background: '#ede9fe', color: '#7c3aed', padding: '0.5rem' }} onClick={function() { if (editingArticle && editingArticle.id === article.id) { setEditingArticle(null) } else { setEditingArticle(article); setEditForm({ title: article.title, description: article.description, price: String(article.price), stock: String(article.stock) }); setEditImageFiles([]); setEditImagePreviews([]); let existing: string[] = []; try { existing = article.imagesJson ? JSON.parse(article.imagesJson) : [] } catch(e) {}; if (!existing.length && article.imageUrl) existing = [article.imageUrl]; setEditExistingImages(existing) } }}>Bearbeiten</button>
                             <button style={{ minHeight: '44px', fontSize: '0.875rem', fontWeight: 700, border: 'none', borderRadius: '10px', cursor: 'pointer', background: '#fee2e2', color: '#ef4444', padding: '0.5rem' }} onClick={function() { handleDeleteArticle(article.id) }} disabled={loading}>Löschen</button>
                           </div>
                         </div>
@@ -275,9 +291,33 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                               <div><label style={lbl}>Anzahl</label><input style={inp} type="number" value={editForm.stock} onChange={function(e) { setEditForm(Object.assign({}, editForm, { stock: e.target.value })) }} /></div>
                             </div>
                             <div>
-                              <input type="file" accept="image/*" onChange={function(e) { const f = e.target.files && e.target.files[0]; if (f) { setEditImageFile(f); setEditImagePreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} id="editImgUp" />
-                              <label htmlFor="editImgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>Neues Bild</label>
-                              {editImagePreview && <img src={editImagePreview} alt="" style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '10px', marginLeft: '0.75rem', verticalAlign: 'middle' }} />}
+                              <label style={lbl}>Bilder</label>
+                              {editExistingImages.length > 0 && (
+                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.625rem' }}>
+                                  {editExistingImages.map(function(url, i) {
+                                    return (
+                                      <div key={i} style={{ position: 'relative' }}>
+                                        <img src={url} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #a855f7' }} />
+                                        <button type="button" onClick={function() { setEditExistingImages(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                              <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setEditImageFiles(function(p) { return [...p, ...files] }); setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="editImgUp" />
+                              <label htmlFor="editImgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Bilder hinzufügen</label>
+                              {editImagePreviews.length > 0 && (
+                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.625rem' }}>
+                                  {editImagePreviews.map(function(preview, i) {
+                                    return (
+                                      <div key={i} style={{ position: 'relative' }}>
+                                        <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px dashed #e9d5ff' }} />
+                                        <button type="button" onClick={function() { setEditImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setEditImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', flexWrap: 'wrap' }}>
