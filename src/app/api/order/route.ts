@@ -3,6 +3,19 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 
+// GET - Alle Bestellungen laden (für Admin-Dashboard)
+export async function GET() {
+  try {
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error('Fehler beim Laden der Bestellungen:', error);
+    return NextResponse.json({ error: 'Fehler beim Laden' }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
