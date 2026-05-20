@@ -21,7 +21,23 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
   const articles = initialArticles as Article[]
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
   const [modalImageIndex, setModalImageIndex] = useState(0)
+  const [cardImageIndices, setCardImageIndices] = useState<Record<string, number>>({})
   const [searchQuery, setSearchQuery] = useState('')
+
+  function getImages(article: Article): string[] {
+    let imgs: string[] = []
+    try { imgs = article.imagesJson ? JSON.parse(article.imagesJson) : [] } catch(e) {}
+    if (!imgs.length && article.imageUrl) imgs = [article.imageUrl]
+    return imgs
+  }
+
+  function cardImg(id: string, delta: number, total: number, e: React.MouseEvent) {
+    e.stopPropagation()
+    setCardImageIndices(prev => {
+      const cur = prev[id] || 0
+      return { ...prev, [id]: (cur + delta + total) % total }
+    })
+  }
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [addedId, setAddedId] = useState<string | null>(null)
 
@@ -129,35 +145,63 @@ export default function ProductList({ initialArticles }: { initialArticles: any[
                 ;(e.currentTarget as HTMLElement).style.boxShadow = '0 2px 10px rgba(120,80,20,0.06), 0 1px 2px rgba(120,80,20,0.04)'
               }}
             >
-              {/* Image */}
-              <div
-                onClick={() => { setSelectedArticle(article); setModalImageIndex(0) }}
-                style={{ height: 'clamp(180px, 25vw, 240px)', background: 'linear-gradient(135deg, #f5f0ff, #fef9ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}
-              >
-                {article.imageUrl ? (
-                  <img
-                    src={article.imageUrl}
-                    alt={article.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-                    onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.06)')}
-                    onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}
-                  />
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#c4b5fd' }}>
-                    <span style={{ fontSize: '3rem' }}>📷</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8125rem', fontWeight: 500 }}>Kein Bild</span>
+              {/* Image Slider */}
+              {(() => {
+                const imgs = getImages(article)
+                const curIdx = cardImageIndices[article.id] || 0
+                const curImg = imgs[curIdx] || null
+                return (
+                  <div
+                    onClick={() => { setSelectedArticle(article); setModalImageIndex(curIdx) }}
+                    style={{ height: 'clamp(180px, 25vw, 240px)', background: 'linear-gradient(135deg, #f5f0ff, #fef9ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}
+                  >
+                    {curImg ? (
+                      <img
+                        src={curImg}
+                        alt={article.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
+                      />
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#c4b5fd' }}>
+                        <span style={{ fontSize: '3rem' }}>📷</span>
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8125rem', fontWeight: 500 }}>Kein Bild</span>
+                      </div>
+                    )}
+
+                    {/* Prev/Next Buttons – nur wenn mehrere Bilder */}
+                    {imgs.length > 1 && (
+                      <>
+                        <button
+                          onClick={e => cardImg(article.id, -1, imgs.length, e)}
+                          style={{ position: 'absolute', left: '0.4rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.82)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 6px rgba(0,0,0,0.18)', backdropFilter: 'blur(4px)', zIndex: 2, padding: 0, lineHeight: 1 }}>‹</button>
+                        <button
+                          onClick={e => cardImg(article.id, 1, imgs.length, e)}
+                          style={{ position: 'absolute', right: '0.4rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.82)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 6px rgba(0,0,0,0.18)', backdropFilter: 'blur(4px)', zIndex: 2, padding: 0, lineHeight: 1 }}>›</button>
+                        {/* Dots */}
+                        <div style={{ position: 'absolute', bottom: '0.5rem', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '5px', zIndex: 2 }}>
+                          {imgs.map((_, di) => (
+                            <button
+                              key={di}
+                              onClick={e => { e.stopPropagation(); setCardImageIndices(prev => ({ ...prev, [article.id]: di })) }}
+                              style={{ width: di === curIdx ? '16px' : '7px', height: '7px', borderRadius: '999px', background: di === curIdx ? '#7c3aed' : 'rgba(255,255,255,0.75)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Detail badge */}
+                    <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderRadius: '999px', padding: '0.25rem 0.625rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.6875rem', fontWeight: 600, color: '#6d28d9', border: '1px solid rgba(109,40,217,0.15)', zIndex: 2 }}>
+                      🔍 Details
+                    </div>
+                    {article.stock <= 0 && (
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,25,23,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(2px)', zIndex: 3 }}>
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", color: 'white', fontWeight: 800, fontSize: '1rem', background: '#dc2626', padding: '0.5rem 1.25rem', borderRadius: '999px' }}>Ausverkauft</span>
+                      </div>
+                    )}
                   </div>
-                )}
-                {/* Detail badge */}
-                <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderRadius: '999px', padding: '0.25rem 0.625rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.6875rem', fontWeight: 600, color: '#6d28d9', border: '1px solid rgba(109,40,217,0.15)' }}>
-                  🔍 Details
-                </div>
-                {article.stock <= 0 && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,25,23,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(2px)' }}>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", color: 'white', fontWeight: 800, fontSize: '1rem', background: '#dc2626', padding: '0.5rem 1.25rem', borderRadius: '999px' }}>Ausverkauft</span>
-                  </div>
-                )}
-              </div>
+                )
+              })()}
 
               {/* Content */}
               <div style={{ padding: 'clamp(1rem, 3vw, 1.375rem)', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.875rem' }}>
