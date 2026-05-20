@@ -86,7 +86,7 @@ ID: ${order.id}
           `.trim(),
         });
 
-        // BestÃ¤tigungs-E-Mail an Kunden
+        // Bestätigungs-E-Mail an Kunden
         await transporter.sendMail({
           from: `"Berndos Flohmarkt" <${smtpEmail}>`,
           to: order.customerEmail,
@@ -134,7 +134,7 @@ ID: ${order.id}
       <p style="font-weight:700;font-size:16px;margin:0;">berndos59@gmail.com</p>
     ` : `
       <p style="color:#6d28d9;font-weight:700;margin:0 0 8px;">Bankueberweisung / Vorkasse:</p>
-      <p style="color:#78716c;margin:0 0 12px;">Bitte in EchtzeitÃ¼berweisung Ã¼berweisen.</p>
+      <p style="color:#78716c;margin:0 0 12px;">Bitte per Überweisung bezahlen.</p>
       <div style="background:white;border-radius:12px;padding:16px;">
         <div><strong>Inhaber:</strong> Bernd Geske</div>
         <div><strong>Betrag:</strong> ${order.totalAmount.toFixed(2)} EUR</div>
@@ -145,15 +145,15 @@ ID: ${order.id}
   <div style="background:white;border-radius:20px;padding:28px;margin-bottom:28px;border:1px solid #e7e0d5;">
     <h2 style="font-size:17px;font-weight:700;margin:0 0 16px;">Naechste Schritte</h2>
     <div style="line-height:1.8;color:#78716c;">
-      <p style="margin:0 0 8px;">1. Ãœberweise den Betrag wie oben beschrieben</p>
+      <p style="margin:0 0 8px;">1. Überweise den Betrag wie oben beschrieben</p>
       <p style="margin:0 0 8px;">2. Nach Zahlungseingang versenden wir per DHL</p>
-      <p style="margin:0;">3. Du erhÃ¤ltst die Sendungsverfolgung per E-Mail</p>
+      <p style="margin:0;">3. Du erhältst die Sendungsverfolgung per E-Mail</p>
     </div>
   </div>
 
   <div style="text-align:center;color:#a8a29e;font-size:13px;">
     <p style="margin:0 0 8px;">Fragen? <a href="https://www.berndos-flohmarkt.de/kontakt" style="color:#6d28d9;">Kontakt</a></p>
-    <p style="margin:0;">Â© ${new Date().getFullYear()} Berndos Flohmarkt</p>
+    <p style="margin:0;">© ${new Date().getFullYear()} Berndos Flohmarkt</p>
   </div>
 
 </div>
