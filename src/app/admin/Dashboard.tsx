@@ -167,6 +167,11 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.25rem; background: white; padding: 0.375rem; border-radius: 12px; border: 1px solid #f3e8ff; width: 100%; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
         .tab-bar::-webkit-scrollbar { display: none; }
         .tab-btn { padding: 0.5rem 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+        .img-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.5rem; }
+        .img-item { position: relative; display: inline-block; flex-shrink: 0; }
+        .img-thumb { width: 68px; height: 68px; object-fit: cover; border-radius: 8px; display: block; }
+        .img-del { position: absolute; top: -7px; right: -7px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 11px; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0; touch-action: manipulation; }
+        .img-add-lbl { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; background: #f5f0ff; color: #7c3aed; border-radius: 10px; cursor: pointer; font-weight: 600; border: 1.5px dashed #a855f7; font-size: 0.875rem; touch-action: manipulation; }
         @media (min-width: 640px) {
           .art-inner { flex-wrap: nowrap; }
           .art-img { width: 72px; height: 72px; }
@@ -234,14 +239,14 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                   <div>
                     <label style={lbl}>Bilder (mehrere möglich)</label>
                     <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setImageFiles(function(p) { return [...p, ...files] }); setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="imgUp" />
-                    <label htmlFor="imgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Bilder hinzufügen</label>
+                    <label htmlFor="imgUp" className="img-add-lbl">📷 Bilder hinzufügen</label>
                     {imagePreviews.length > 0 && (
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.625rem' }}>
+                      <div className="img-grid" style={{ marginTop: '0.5rem' }}>
                         {imagePreviews.map(function(preview, i) {
                           return (
-                            <div key={i} style={{ position: 'relative' }}>
-                              <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e9d5ff' }} />
-                              <button type="button" onClick={function() { setImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                            <div key={i} className="img-item">
+                              <img src={preview} alt="" className="img-thumb" style={{ border: '2px solid #e9d5ff' }} />
+                              <button type="button" className="img-del" onClick={function() { setImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }}>✕</button>
                             </div>
                           )
                         })}
@@ -293,26 +298,26 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                             <div>
                               <label style={lbl}>Bilder</label>
                               {editExistingImages.length > 0 && (
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.625rem' }}>
+                                <div className="img-grid" style={{ marginBottom: '0.625rem' }}>
                                   {editExistingImages.map(function(url, i) {
                                     return (
-                                      <div key={i} style={{ position: 'relative' }}>
-                                        <img src={url} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #a855f7' }} />
-                                        <button type="button" onClick={function() { setEditExistingImages(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                                      <div key={i} className="img-item">
+                                        <img src={url} alt="" className="img-thumb" style={{ border: '2px solid #a855f7' }} />
+                                        <button type="button" className="img-del" onClick={function() { setEditExistingImages(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }}>✕</button>
                                       </div>
                                     )
                                   })}
                                 </div>
                               )}
                               <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setEditImageFiles(function(p) { return [...p, ...files] }); setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="editImgUp" />
-                              <label htmlFor="editImgUp" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.875rem' }}>📷 Bilder hinzufügen</label>
+                              <label htmlFor="editImgUp" className="img-add-lbl">📷 Bilder hinzufügen</label>
                               {editImagePreviews.length > 0 && (
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.625rem' }}>
+                                <div className="img-grid" style={{ marginTop: '0.5rem' }}>
                                   {editImagePreviews.map(function(preview, i) {
                                     return (
-                                      <div key={i} style={{ position: 'relative' }}>
-                                        <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '2px dashed #e9d5ff' }} />
-                                        <button type="button" onClick={function() { setEditImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setEditImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-7px', right: '-7px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontWeight: 700 }}>✕</button>
+                                      <div key={i} className="img-item">
+                                        <img src={preview} alt="" className="img-thumb" style={{ border: '2px dashed #e9d5ff' }} />
+                                        <button type="button" className="img-del" onClick={function() { setEditImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setEditImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }}>✕</button>
                                       </div>
                                     )
                                   })}

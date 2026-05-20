@@ -13,21 +13,29 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    const { id } = await params;
     const body = await request.json();
-    const imagesArr: string[] = Array.isArray(body.imagesJson) ? body.imagesJson : (body.imagesJson ? JSON.parse(body.imagesJson) : (body.imageUrl ? [body.imageUrl] : []))
-    const article = await (prisma as any).article.update({
-      where: { id },
-      data: {
-        title: body.title,
-        description: body.description || '',
-        price: parseFloat(body.price),
-        stock: parseInt(body.stock),
-        imageUrl: imagesArr[0] || body.imageUrl || null,
-        imagesJson: JSON.stringify(imagesArr),
-      }
-    });
+    let imagesArr: string[] = []
+    try {
+      imagesArr = Array.isArray(body.imagesJson) ? body.imagesJson : (body.imagesJson ? JSON.parse(body.imagesJson) : (body.imageUrl ? [body.imageUrl] : []))
+    } catch(e) { imagesArr = body.imageUrl ? [body.imageUrl] : [] }
+
+    const baseData = {
+      title: body.title,
+      description: body.description || '',
+      price: parseFloat(body.price),
+      stock: parseInt(body.stock),
+      imageUrl: imagesArr[0] || body.imageUrl || null,
+    }
+
+    let article
+    try {
+      article = await (prisma as any).article.update({ where: { id }, data: { ...baseData, imagesJson: JSON.stringify(imagesArr) } });
+    } catch(e: any) {
+      // Fallback: ohne imagesJson speichern falls Spalte fehlt
+      article = await (prisma as any).article.update({ where: { id }, data: baseData });
+    }
     return NextResponse.json(article);
   } catch (error) {
     console.error('Fehler beim Aktualisieren:', error);
