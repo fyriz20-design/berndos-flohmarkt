@@ -104,10 +104,14 @@ ID: ${order.id}
           from: `"Berndos Flohmarkt" <${smtpEmail}>`,
           to: order.customerEmail,
           subject: `Deine Bestellung bei Berndos Flohmarkt`,
-          html: `
-<!DOCTYPE html>
+          encoding: 'utf-8',
+          html: `<!DOCTYPE html>
 <html lang="de">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
 <body style="margin:0;padding:0;background:#fdfaf5;font-family:Arial,sans-serif;color:#1c1917;">
 <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
 
@@ -115,7 +119,7 @@ ID: ${order.id}
     <div style="display:inline-block;background:linear-gradient(135deg,#6d28d9,#a855f7);border-radius:16px;padding:16px 24px;margin-bottom:16px;">
       <span style="color:white;font-size:22px;font-weight:900;">Berndos Flohmarkt</span>
     </div>
-    <h1 style="font-size:26px;font-weight:900;color:#1c1917;margin:0 0 8px;">Vielen Dank fuer deine Bestellung!</h1>
+    <h1 style="font-size:26px;font-weight:900;color:#1c1917;margin:0 0 8px;">Vielen Dank f&uuml;r deine Bestellung!</h1>
     <p style="color:#78716c;font-size:15px;margin:0;">Wir haben deine Bestellung erhalten und melden uns bald.</p>
   </div>
 
@@ -143,11 +147,11 @@ ID: ${order.id}
     <h2 style="font-size:17px;font-weight:700;margin:0 0 12px;">Zahlungshinweis</h2>
     ${body.paymentMethod === 'PAYPAL' ? `
       <p style="color:#0070ba;font-weight:700;margin:0 0 8px;">PayPal:</p>
-      <p style="margin:0 0 4px;">Bitte ueberweise manuell an:</p>
+      <p style="margin:0 0 4px;">Bitte &uuml;berweise manuell an:</p>
       <p style="font-weight:700;font-size:16px;margin:0;">berndos59@gmail.com</p>
     ` : `
-      <p style="color:#6d28d9;font-weight:700;margin:0 0 8px;">Bankueberweisung / Vorkasse:</p>
-      <p style="color:#78716c;margin:0 0 12px;">Bitte per Überweisung bezahlen.</p>
+      <p style="color:#6d28d9;font-weight:700;margin:0 0 8px;">Banküberweisung / Vorkasse:</p>
+      <p style="color:#78716c;margin:0 0 12px;">Bitte per &Uuml;berweisung im Voraus bezahlen.</p>
       <div style="background:white;border-radius:12px;padding:16px;">
         <div><strong>Inhaber:</strong> Bernd Geske</div>
         <div><strong>Betrag:</strong> ${order.totalAmount.toFixed(2)} EUR</div>
@@ -156,23 +160,22 @@ ID: ${order.id}
   </div>
 
   <div style="background:white;border-radius:20px;padding:28px;margin-bottom:28px;border:1px solid #e7e0d5;">
-    <h2 style="font-size:17px;font-weight:700;margin:0 0 16px;">Naechste Schritte</h2>
+    <h2 style="font-size:17px;font-weight:700;margin:0 0 16px;">N&auml;chste Schritte</h2>
     <div style="line-height:1.8;color:#78716c;">
-      <p style="margin:0 0 8px;">1. Überweise den Betrag wie oben beschrieben</p>
+      <p style="margin:0 0 8px;">1. &Uuml;berweise den Betrag wie oben beschrieben</p>
       <p style="margin:0 0 8px;">2. Nach Zahlungseingang versenden wir per DHL</p>
-      <p style="margin:0;">3. Du erhältst die Sendungsverfolgung per E-Mail</p>
+      <p style="margin:0;">3. Du erh&auml;ltst die Sendungsverfolgung per E-Mail</p>
     </div>
   </div>
 
   <div style="text-align:center;color:#a8a29e;font-size:13px;">
     <p style="margin:0 0 8px;">Fragen? <a href="https://www.berndos-flohmarkt.de/kontakt" style="color:#6d28d9;">Kontakt</a></p>
-    <p style="margin:0;">© ${new Date().getFullYear()} Berndos Flohmarkt</p>
+    <p style="margin:0;">&copy; ${new Date().getFullYear()} Berndos Flohmarkt</p>
   </div>
 
 </div>
 </body>
-</html>
-          `,
+</html>`,
         });
 
         console.log('Beide E-Mails versendet');
