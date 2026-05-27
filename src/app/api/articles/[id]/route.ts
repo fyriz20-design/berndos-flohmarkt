@@ -29,10 +29,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       imageUrl: imagesArr[0] || body.imageUrl || null,
     }
 
-    const article = await (prisma as any).article.update({
-      where: { id },
-      data: { ...baseData, imagesJson: JSON.stringify(imagesArr) }
-    });
+    let article
+    try {
+      article = await (prisma as any).article.update({ where: { id }, data: { ...baseData, imagesJson: JSON.stringify(imagesArr) } })
+    } catch (imgErr: any) {
+      console.error('imagesJson-Fehler beim Aktualisieren (Fallback):', imgErr?.message || imgErr)
+      article = await (prisma as any).article.update({ where: { id }, data: baseData })
+    }
     return NextResponse.json(article);
   } catch (error) {
     console.error('Fehler beim Aktualisieren:', error);

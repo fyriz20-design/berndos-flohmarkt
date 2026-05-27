@@ -37,9 +37,13 @@ export async function POST(request: Request) {
       isAvailable: true,
     }
 
-    const article = await (prisma as any).article.create({
-      data: { ...baseData, imagesJson: JSON.stringify(imagesArr) }
-    });
+    let article
+    try {
+      article = await (prisma as any).article.create({ data: { ...baseData, imagesJson: JSON.stringify(imagesArr) } })
+    } catch (imgErr: any) {
+      console.error('imagesJson-Fehler beim Erstellen (Fallback):', imgErr?.message || imgErr)
+      article = await (prisma as any).article.create({ data: baseData })
+    }
 
     return NextResponse.json(article, { status: 201 });
   } catch (error) {

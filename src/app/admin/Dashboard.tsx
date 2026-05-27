@@ -69,12 +69,20 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     try {
       const uploadedUrls: string[] = []
       for (const file of imageFiles) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
-        if (result.imageUrl) uploadedUrls.push(result.imageUrl)
+        try {
+          const fd = new FormData()
+          fd.append('file', file)
+          const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+          if (result.imageUrl) uploadedUrls.push(result.imageUrl)
+        } catch(uploadErr) {
+          console.error('Bild-Upload Fehler:', uploadErr)
+        }
       }
-      const res = await fetch('/api/articles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newArticle.title, description: newArticle.description, price: parseFloat(newArticle.price), stock: parseInt(newArticle.stock), imageUrl: uploadedUrls[0] || null, imagesJson: JSON.stringify(uploadedUrls) }) })
+      const priceStr = newArticle.price.replace(',', '.')
+      const priceNum = parseFloat(priceStr)
+      if (isNaN(priceNum)) { flash('Ungültiger Preis'); setLoading(false); return }
+      const stockNum = parseInt(newArticle.stock) || 1
+      const res = await fetch('/api/articles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newArticle.title, description: newArticle.description, price: priceNum, stock: stockNum, imageUrl: uploadedUrls[0] || null, imagesJson: JSON.stringify(uploadedUrls) }) })
       if (res.ok) {
         const c = await res.json()
         setArticles(function(p) { return [c, ...p] })
@@ -83,8 +91,11 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         setImagePreviews([])
         setShowForm(false)
         flash('Artikel erstellt!')
-      } else { flash('Fehler beim Erstellen') }
-    } catch(e) { flash('Verbindungsfehler') }
+      } else {
+        const errData = await res.json().catch(function() { return {} })
+        flash('Fehler beim Erstellen: ' + (errData.error || res.status))
+      }
+    } catch(e) { flash('Verbindungsfehler: ' + String(e)) }
     setLoading(false)
   }
 
@@ -94,13 +105,21 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     try {
       const newUrls: string[] = []
       for (const file of editImageFiles) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
-        if (result.imageUrl) newUrls.push(result.imageUrl)
+        try {
+          const fd = new FormData()
+          fd.append('file', file)
+          const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+          if (result.imageUrl) newUrls.push(result.imageUrl)
+        } catch(uploadErr) {
+          console.error('Bild-Upload Fehler:', uploadErr)
+        }
       }
       const allUrls = [...editExistingImages, ...newUrls]
-      const res = await fetch('/api/articles/' + editingArticle.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: editForm.title, description: editForm.description, price: parseFloat(editForm.price), stock: parseInt(editForm.stock), imageUrl: allUrls[0] || null, imagesJson: JSON.stringify(allUrls) }) })
+      const priceStr = editForm.price.replace(',', '.')
+      const priceNum = parseFloat(priceStr)
+      if (isNaN(priceNum)) { flash('Ungültiger Preis'); setLoading(false); return }
+      const stockNum = parseInt(editForm.stock) || 1
+      const res = await fetch('/api/articles/' + editingArticle.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: editForm.title, description: editForm.description, price: priceNum, stock: stockNum, imageUrl: allUrls[0] || null, imagesJson: JSON.stringify(allUrls) }) })
       if (res.ok) {
         const u = await res.json()
         setArticles(function(p) { return p.map(function(a) { return a.id === u.id ? u : a }) })
@@ -109,8 +128,11 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         setEditImagePreviews([])
         setEditExistingImages([])
         flash('Artikel aktualisiert!')
-      } else { flash('Fehler') }
-    } catch(e) { flash('Verbindungsfehler') }
+      } else {
+        const errData = await res.json().catch(function() { return {} })
+        flash('Fehler: ' + (errData.error || res.status))
+      }
+    } catch(e) { flash('Verbindungsfehler: ' + String(e)) }
     setLoading(false)
   }
 
