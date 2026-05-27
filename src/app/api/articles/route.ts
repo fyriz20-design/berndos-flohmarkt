@@ -37,13 +37,9 @@ export async function POST(request: Request) {
       isAvailable: true,
     }
 
-    let article
-    try {
-      article = await (prisma as any).article.create({ data: { ...baseData, imagesJson: JSON.stringify(imagesArr) } });
-    } catch(e: any) {
-      // Fallback: ohne imagesJson erstellen falls Spalte fehlt
-      article = await (prisma as any).article.create({ data: baseData });
-    }
+    const article = await (prisma as any).article.create({
+      data: { ...baseData, imagesJson: JSON.stringify(imagesArr) }
+    });
 
     return NextResponse.json(article, { status: 201 });
   } catch (error) {

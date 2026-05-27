@@ -12,8 +12,10 @@ export async function POST(request: Request) {
     }
 
     // Upload to Vercel Blob Storage
+    // addRandomSuffix ensures same-named files (e.g. iOS "image.jpg") get unique URLs
     const blob = await put(file.name, file, {
       access: 'public',
+      addRandomSuffix: true,
     });
 
     return NextResponse.json({ imageUrl: blob.url }, { status: 201 });
