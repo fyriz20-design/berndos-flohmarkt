@@ -293,28 +293,25 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                   </div>
                   <div>
                     <label style={lbl}>Bilder (mehrere möglich)</label>
-                    <input
-                      ref={imgInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      style={{ display: 'none' }}
-                      onChange={function(e) {
-                        const files = Array.from(e.target.files || [])
-                        if (files.length) {
-                          setImageFiles(function(p) { return [...p, ...files] })
-                          setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
-                        }
-                        e.target.value = ''
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={function() { imgInputRef.current && imgInputRef.current.click() }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', touchAction: 'manipulation' }}
-                    >
-                      📷 {imagePreviews.length > 0 ? `${imagePreviews.length} Bild${imagePreviews.length > 1 ? 'er' : ''} – weitere hinzufügen` : 'Bilder auswählen'}
-                    </button>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', boxSizing: 'border-box' as const, pointerEvents: 'none' as const }}>
+                        📷 {imagePreviews.length > 0 ? `${imagePreviews.length} Bild${imagePreviews.length > 1 ? 'er' : ''} – weitere hinzufügen` : 'Bilder auswählen'}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', touchAction: 'manipulation' } as React.CSSProperties}
+                        onChange={function(e) {
+                          const files = Array.from(e.target.files || [])
+                          if (files.length) {
+                            setImageFiles(function(p) { return [...p, ...files] })
+                            setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
+                          }
+                          e.target.value = ''
+                        }}
+                      />
+                    </div>
                     {imagePreviews.length > 0 && (
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                         {imagePreviews.map(function(preview, i) {
@@ -384,28 +381,25 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                                   })}
                                 </div>
                               )}
-                              <input
-                                ref={editImgInputRef}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                style={{ display: 'none' }}
-                                onChange={function(e) {
-                                  const files = Array.from(e.target.files || [])
-                                  if (files.length) {
-                                    setEditImageFiles(function(p) { return [...p, ...files] })
-                                    setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
-                                  }
-                                  e.target.value = ''
-                                }}
-                              />
-                              <button
-                                type="button"
-                                onClick={function() { editImgInputRef.current && editImgInputRef.current.click() }}
-                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', touchAction: 'manipulation' }}
-                              >
-                                📷 {editImagePreviews.length > 0 ? `${editImagePreviews.length} neu – weitere hinzufügen` : 'Neue Bilder hinzufügen'}
-                              </button>
+                              <div style={{ position: 'relative', width: '100%' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', boxSizing: 'border-box' as const, pointerEvents: 'none' as const }}>
+                                  📷 {editImagePreviews.length > 0 ? `${editImagePreviews.length} neu – weitere hinzufügen` : 'Neue Bilder hinzufügen'}
+                                </div>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', touchAction: 'manipulation' } as React.CSSProperties}
+                                  onChange={function(e) {
+                                    const files = Array.from(e.target.files || [])
+                                    if (files.length) {
+                                      setEditImageFiles(function(p) { return [...p, ...files] })
+                                      setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
+                                    }
+                                    e.target.value = ''
+                                  }}
+                                />
+                              </div>
                               {editImagePreviews.length > 0 && (
                                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                                   {editImagePreviews.map(function(preview, i) {
