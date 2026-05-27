@@ -8,6 +8,39 @@ type Settings = { paypalClientId: string; bankIban: string; bankBic: string; ban
 type Tab = 'articles' | 'orders' | 'settings' | 'analytics'
 type Analytics = { total: number; today: number; week: number; month: number; daily: { date: string; count: number }[] }
 
+// Komprimiert ein Bild vor dem Upload (max. 1600px, JPEG 85%) – wichtig für große iPhone-Fotos
+function compressForUpload(file: File): Promise<File> {
+  return new Promise(function(resolve) {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = function() {
+      URL.revokeObjectURL(url)
+      const MAX = 1600
+      let w = img.naturalWidth || 800
+      let h = img.naturalHeight || 600
+      const ratio = Math.min(MAX / w, MAX / h, 1)
+      w = Math.round(w * ratio)
+      h = Math.round(h * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { resolve(file); return }
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(function(blob) {
+        if (blob && blob.size < file.size) {
+          const name = file.name.replace(/\.(heic|heif|jpeg|jpg|png|gif|webp|bmp|tiff?)$/i, '.jpg') || 'foto.jpg'
+          resolve(new File([blob], name, { type: 'image/jpeg' }))
+        } else {
+          resolve(file)
+        }
+      }, 'image/jpeg', 0.85)
+    }
+    img.onerror = function() { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
 export default function Dashboard({ articles: initialArticles, orders: initialOrders }: { articles: Article[]; orders: Order[]; settings: Settings | null }) {
   const [tab, setTab] = useState<Tab>('articles')
   const [articles, setArticles] = useState<Article[]>(initialArticles || [])
@@ -27,6 +60,8 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [isMobile, setIsMobile] = useState(true)
   const [uploadProgress, setUploadProgress] = useState('')
+  const [imgInputKey, setImgInputKey] = useState(0)
+  const [editImgInputKey, setEditImgInputKey] = useState(0)
   const imgInputRef = useRef<HTMLInputElement>(null)
   const editImgInputRef = useRef<HTMLInputElement>(null)
   useEffect(function() {
@@ -76,8 +111,9 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         const results = await Promise.all(
           imageFiles.map(async function(file) {
             try {
+              const compressed = await compressForUpload(file)
               const fd = new FormData()
-              fd.append('file', file)
+              fd.append('file', compressed)
               const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
               done++
               setUploadProgress('Lade Bilder hoch... ' + done + '/' + imageFiles.length)
@@ -127,8 +163,9 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         const results = await Promise.all(
           editImageFiles.map(async function(file) {
             try {
+              const compressed = await compressForUpload(file)
               const fd = new FormData()
-              fd.append('file', file)
+              fd.append('file', compressed)
               const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
               done++
               setUploadProgress('Lade Bilder hoch... ' + done + '/' + editImageFiles.length)
@@ -295,11 +332,12 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                     <label style={lbl}>Bilder (mehrere möglich)</label>
                     <div style={{ position: 'relative', width: '100%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', boxSizing: 'border-box' as const, pointerEvents: 'none' as const }}>
-                        📷 {imagePreviews.length > 0 ? `${imagePreviews.length} Bild${imagePreviews.length > 1 ? 'er' : ''} – weitere hinzufügen` : 'Bilder auswählen'}
+                        📷 {imagePreviews.length > 0 ? `${imagePreviews.length} Bild${imagePreviews.length > 1 ? 'er' : ''} ausgewählt – nochmal tippen für mehr` : 'Bilder auswählen'}
                       </div>
                       <input
+                        key={imgInputKey}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/heic,image/heif,image/gif,image/webp,image/*"
                         multiple
                         style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', touchAction: 'manipulation' } as React.CSSProperties}
                         onChange={function(e) {
@@ -308,10 +346,13 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                             setImageFiles(function(p) { return [...p, ...files] })
                             setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
                           }
-                          e.target.value = ''
+                          setImgInputKey(function(k) { return k + 1 })
                         }}
                       />
                     </div>
+                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '0.375rem 0 0', textAlign: 'center' as const }}>
+                      iPhone: max. 4 Fotos pro Auswahl – einfach nochmal tippen um weitere hinzuzufügen
+                    </p>
                     {imagePreviews.length > 0 && (
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                         {imagePreviews.map(function(preview, i) {
@@ -383,11 +424,12 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                               )}
                               <div style={{ position: 'relative', width: '100%' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', boxSizing: 'border-box' as const, pointerEvents: 'none' as const }}>
-                                  📷 {editImagePreviews.length > 0 ? `${editImagePreviews.length} neu – weitere hinzufügen` : 'Neue Bilder hinzufügen'}
+                                  📷 {editImagePreviews.length > 0 ? `${editImagePreviews.length} neu – nochmal tippen für mehr` : 'Neue Bilder hinzufügen'}
                                 </div>
                                 <input
+                                  key={editImgInputKey}
                                   type="file"
-                                  accept="image/*"
+                                  accept="image/jpeg,image/png,image/heic,image/heif,image/gif,image/webp,image/*"
                                   multiple
                                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', touchAction: 'manipulation' } as React.CSSProperties}
                                   onChange={function(e) {
@@ -396,10 +438,13 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                                       setEditImageFiles(function(p) { return [...p, ...files] })
                                       setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
                                     }
-                                    e.target.value = ''
+                                    setEditImgInputKey(function(k) { return k + 1 })
                                   }}
                                 />
                               </div>
+                              <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: '0.375rem 0 0', textAlign: 'center' as const }}>
+                                iPhone: max. 4 Fotos pro Auswahl – einfach nochmal tippen für mehr
+                              </p>
                               {editImagePreviews.length > 0 && (
                                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                                   {editImagePreviews.map(function(preview, i) {
