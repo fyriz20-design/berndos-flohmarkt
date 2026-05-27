@@ -26,6 +26,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [isMobile, setIsMobile] = useState(true)
+  const [uploadProgress, setUploadProgress] = useState('')
   const imgInputRef = useRef<HTMLInputElement>(null)
   const editImgInputRef = useRef<HTMLInputElement>(null)
   useEffect(function() {
@@ -67,17 +68,31 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     if (!newArticle.title || !newArticle.price) { flash('Titel und Preis angeben!'); return }
     setLoading(true)
     try {
-      const uploadedUrls: string[] = []
-      for (const file of imageFiles) {
-        try {
-          const fd = new FormData()
-          fd.append('file', file)
-          const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
-          if (result.imageUrl) uploadedUrls.push(result.imageUrl)
-        } catch(uploadErr) {
-          console.error('Bild-Upload Fehler:', uploadErr)
-        }
+      // Alle Bilder parallel hochladen
+      let uploadedUrls: string[] = []
+      if (imageFiles.length > 0) {
+        let done = 0
+        setUploadProgress('Lade Bilder hoch... 0/' + imageFiles.length)
+        const results = await Promise.all(
+          imageFiles.map(async function(file) {
+            try {
+              const fd = new FormData()
+              fd.append('file', file)
+              const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+              done++
+              setUploadProgress('Lade Bilder hoch... ' + done + '/' + imageFiles.length)
+              return result.imageUrl || null
+            } catch(e) {
+              done++
+              setUploadProgress('Lade Bilder hoch... ' + done + '/' + imageFiles.length)
+              console.error('Upload-Fehler:', e)
+              return null
+            }
+          })
+        )
+        uploadedUrls = results.filter(function(u) { return !!u }) as string[]
       }
+      setUploadProgress('')
       const priceStr = newArticle.price.replace(',', '.')
       const priceNum = parseFloat(priceStr)
       if (isNaN(priceNum)) { flash('Ungültiger Preis'); setLoading(false); return }
@@ -96,6 +111,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         flash('Fehler beim Erstellen: ' + (errData.error || res.status))
       }
     } catch(e) { flash('Verbindungsfehler: ' + String(e)) }
+    setUploadProgress('')
     setLoading(false)
   }
 
@@ -103,17 +119,31 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
     if (!editingArticle || !editForm.title || !editForm.price) { flash('Pflichtfelder ausfuellen'); return }
     setLoading(true)
     try {
-      const newUrls: string[] = []
-      for (const file of editImageFiles) {
-        try {
-          const fd = new FormData()
-          fd.append('file', file)
-          const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
-          if (result.imageUrl) newUrls.push(result.imageUrl)
-        } catch(uploadErr) {
-          console.error('Bild-Upload Fehler:', uploadErr)
-        }
+      // Neue Bilder parallel hochladen
+      let newUrls: string[] = []
+      if (editImageFiles.length > 0) {
+        let done = 0
+        setUploadProgress('Lade Bilder hoch... 0/' + editImageFiles.length)
+        const results = await Promise.all(
+          editImageFiles.map(async function(file) {
+            try {
+              const fd = new FormData()
+              fd.append('file', file)
+              const result = await (await fetch('/api/upload', { method: 'POST', body: fd })).json()
+              done++
+              setUploadProgress('Lade Bilder hoch... ' + done + '/' + editImageFiles.length)
+              return result.imageUrl || null
+            } catch(e) {
+              done++
+              setUploadProgress('Lade Bilder hoch... ' + done + '/' + editImageFiles.length)
+              console.error('Upload-Fehler:', e)
+              return null
+            }
+          })
+        )
+        newUrls = results.filter(function(u) { return !!u }) as string[]
       }
+      setUploadProgress('')
       const allUrls = [...editExistingImages, ...newUrls]
       const priceStr = editForm.price.replace(',', '.')
       const priceNum = parseFloat(priceStr)
@@ -133,6 +163,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
         flash('Fehler: ' + (errData.error || res.status))
       }
     } catch(e) { flash('Verbindungsfehler: ' + String(e)) }
+    setUploadProgress('')
     setLoading(false)
   }
 
@@ -298,7 +329,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                     )}
                   </div>
                 </div>
-                <button onClick={handleCreateArticle} disabled={loading} style={Object.assign({}, saveBtn, { marginTop: '1rem', opacity: loading ? 0.7 : 1, width: '100%' })}>{loading ? 'Speichern...' : 'Artikel speichern'}</button>
+                <button onClick={handleCreateArticle} disabled={loading} style={Object.assign({}, saveBtn, { marginTop: '1rem', opacity: loading ? 0.7 : 1, width: '100%' })}>{uploadProgress || (loading ? 'Speichern...' : 'Artikel speichern')}</button>
               </div>
             )}
             {articles.length === 0 ? (
@@ -390,7 +421,7 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                            <button onClick={handleUpdateArticle} disabled={loading} style={Object.assign({}, saveBtn, { opacity: loading ? 0.7 : 1, flex: 1 })}>{loading ? 'Speichern...' : 'Speichern'}</button>
+                            <button onClick={handleUpdateArticle} disabled={loading} style={Object.assign({}, saveBtn, { opacity: loading ? 0.7 : 1, flex: 1 })}>{uploadProgress || (loading ? 'Speichern...' : 'Speichern')}</button>
                             <button onClick={function() { setEditingArticle(null) }} style={{ padding: '0.75rem 1.25rem', background: '#f3f4f6', color: '#6b7280', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Abbrechen</button>
                           </div>
                         </div>
