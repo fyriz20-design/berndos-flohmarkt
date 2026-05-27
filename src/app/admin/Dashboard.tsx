@@ -1,5 +1,5 @@
 ﻿'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { logoutAction } from './actions'
 
 type Article = { id: string; title: string; description: string; price: number; imageUrl: string | null; imagesJson: string; stock: number; isAvailable: boolean; createdAt: string }
@@ -26,6 +26,8 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
   const [settings, setSettings] = useState<Settings>({ paypalClientId: '', bankIban: '', bankBic: '', bankHolder: '', bankName: '' })
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [isMobile, setIsMobile] = useState(true)
+  const imgInputRef = useRef<HTMLInputElement>(null)
+  const editImgInputRef = useRef<HTMLInputElement>(null)
   useEffect(function() {
     function check() { setIsMobile(window.innerWidth < 640) }
     check()
@@ -238,15 +240,35 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                   </div>
                   <div>
                     <label style={lbl}>Bilder (mehrere möglich)</label>
-                    <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setImageFiles(function(p) { return [...p, ...files] }); setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="imgUp" />
-                    <label htmlFor="imgUp" className="img-add-lbl">📷 Bilder hinzufügen</label>
+                    <input
+                      ref={imgInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: 'none' }}
+                      onChange={function(e) {
+                        const files = Array.from(e.target.files || [])
+                        if (files.length) {
+                          setImageFiles(function(p) { return [...p, ...files] })
+                          setImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
+                        }
+                        e.target.value = ''
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={function() { imgInputRef.current && imgInputRef.current.click() }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', touchAction: 'manipulation' }}
+                    >
+                      📷 {imagePreviews.length > 0 ? `${imagePreviews.length} Bild${imagePreviews.length > 1 ? 'er' : ''} – weitere hinzufügen` : 'Bilder auswählen'}
+                    </button>
                     {imagePreviews.length > 0 && (
-                      <div className="img-grid" style={{ marginTop: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                         {imagePreviews.map(function(preview, i) {
                           return (
-                            <div key={i} className="img-item">
-                              <img src={preview} alt="" className="img-thumb" style={{ border: '2px solid #e9d5ff' }} />
-                              <button type="button" className="img-del" onClick={function() { setImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }}>✕</button>
+                            <div key={i} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+                              <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', display: 'block', border: '2px solid #e9d5ff' }} />
+                              <button type="button" onClick={function() { setImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', border: '2px solid white', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, touchAction: 'manipulation' }}>✕</button>
                             </div>
                           )
                         })}
@@ -309,15 +331,35 @@ export default function Dashboard({ articles: initialArticles, orders: initialOr
                                   })}
                                 </div>
                               )}
-                              <input type="file" accept="image/*" multiple onChange={function(e) { const files = Array.from(e.target.files || []); if (files.length) { setEditImageFiles(function(p) { return [...p, ...files] }); setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] }) }; e.target.value = '' }} style={{ display: 'none' }} id="editImgUp" />
-                              <label htmlFor="editImgUp" className="img-add-lbl">📷 Bilder hinzufügen</label>
+                              <input
+                                ref={editImgInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                style={{ display: 'none' }}
+                                onChange={function(e) {
+                                  const files = Array.from(e.target.files || [])
+                                  if (files.length) {
+                                    setEditImageFiles(function(p) { return [...p, ...files] })
+                                    setEditImagePreviews(function(p) { return [...p, ...files.map(function(f) { return URL.createObjectURL(f) })] })
+                                  }
+                                  e.target.value = ''
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={function() { editImgInputRef.current && editImgInputRef.current.click() }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#f5f0ff', color: '#7c3aed', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, border: '1.5px dashed #a855f7', fontSize: '0.9375rem', width: '100%', justifyContent: 'center', minHeight: '52px', touchAction: 'manipulation' }}
+                              >
+                                📷 {editImagePreviews.length > 0 ? `${editImagePreviews.length} neu – weitere hinzufügen` : 'Neue Bilder hinzufügen'}
+                              </button>
                               {editImagePreviews.length > 0 && (
-                                <div className="img-grid" style={{ marginTop: '0.5rem' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.625rem' }}>
                                   {editImagePreviews.map(function(preview, i) {
                                     return (
-                                      <div key={i} className="img-item">
-                                        <img src={preview} alt="" className="img-thumb" style={{ border: '2px dashed #e9d5ff' }} />
-                                        <button type="button" className="img-del" onClick={function() { setEditImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setEditImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }}>✕</button>
+                                      <div key={i} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+                                        <img src={preview} alt="" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', display: 'block', border: '2px dashed #e9d5ff' }} />
+                                        <button type="button" onClick={function() { setEditImageFiles(function(p) { return p.filter(function(_, idx) { return idx !== i }) }); setEditImagePreviews(function(p) { return p.filter(function(_, idx) { return idx !== i }) }) }} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', border: '2px solid white', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, touchAction: 'manipulation' }}>✕</button>
                                       </div>
                                     )
                                   })}
