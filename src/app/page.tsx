@@ -10,7 +10,7 @@ export default function HomePage() {
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setArticles(data) })
       .catch(console.error)
-    // Besuch tracken
+    
     fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: '/' }) }).catch(() => {})
   }, [])
 
@@ -24,15 +24,19 @@ export default function HomePage() {
           </svg>
         </div>
         <div style={{ position: 'relative', zIndex: 2, maxWidth: '1100px', margin: '0 auto', padding: '0 1.25rem', textAlign: 'center' }}>
-          <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: 'clamp(2.25rem, 8vw, 5rem)', fontWeight: 900, color: '#1c1917', letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '1.375rem' }}>
-            Berndos
-            <span style={{ background: 'linear-gradient(135deg, #6d28d9, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontStyle: 'italic' }}> Flohmarkt</span>
+          
+          {/* SEO Optimierte H1 Überschrift */}
+          <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: 'clamp(2rem, 7vw, 4.5rem)', fontWeight: 900, color: '#1c1917', lineHeight: 1.1, marginBottom: '1.375rem' }}>
+            Flohmarkt in Freudenstadt: <br />
+            <span style={{ background: 'linear-gradient(135deg, #6d28d9, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontStyle: 'italic' }}>Berndos Fundgrube</span>
           </h1>
-          <p style={{ maxWidth: '540px', margin: '0 auto 2rem', color: '#78716c', fontSize: 'clamp(1rem, 2.5vw, 1.1875rem)', lineHeight: 1.75, fontFamily: 'DM Sans, sans-serif' }}>
-            Stoebere durch schoene Einzelstuecke aus privatem Besitz. Bezahle bequem per PayPal oder Bankueberweisung.
+          
+          <p style={{ maxWidth: '600px', margin: '0 auto 2rem', color: '#78716c', fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', lineHeight: 1.75, fontFamily: 'DM Sans, sans-serif' }}>
+            Entdecke einzigartige Schätze und Schnäppchen beim Flohmarkt in Freudenstadt. Stoebere durch unsere Einzelstuecke – bequem online reservieren und sicher bezahlen.
           </p>
+
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap' }}>
-            {[{ icon: '🏷️', label: 'Einzelstuecke', sub: 'Jedes einmalig' }, { icon: '💳', label: 'Sicher zahlen', sub: 'PayPal und Ueberweisung' }, { icon: '📦', label: 'Schneller Versand', sub: 'Per DHL' }].map((item) => (
+            {[{ icon: '🏷️', label: 'Einzelstuecke', sub: 'Besondere Funde' }, { icon: '💳', label: 'Sicher zahlen', sub: 'PayPal & Ueberweisung' }, { icon: '📍', label: 'Freudenstadt', sub: 'Regional & Nah' }].map((item) => (
               <div key={item.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem' }}>{item.icon}</div>
                 <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: '#1c1917' }}>{item.label}</div>
@@ -42,7 +46,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      
       <main style={{ maxWidth: '1200px', margin: '-2rem auto 0', padding: '0 0.75rem 5rem', position: 'relative', zIndex: 10 }}>
+        <h2 style={{ textAlign: 'center', fontSize: '1.5rem', marginBottom: '1.5rem', color: '#444' }}>Aktuelle Flohmarkt-Angebote in Freudenstadt</h2>
         <div style={{ background: 'rgba(255,253,248,0.9)', backdropFilter: 'blur(20px)', borderRadius: 'clamp(16px, 3vw, 28px)', padding: 'clamp(1.25rem, 4vw, 2.25rem)', boxShadow: '0 20px 60px rgba(120,80,20,0.08)', border: '1px solid rgba(231,224,213,0.6)' }}>
           <ProductList initialArticles={articles} />
         </div>
